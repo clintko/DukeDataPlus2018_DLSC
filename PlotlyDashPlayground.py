@@ -9,34 +9,33 @@ app = dash.Dash()
 
 # reading the normal plot file
 # convert the tsv into csv
-tsv_file = '/Users/dzy/Desktop/变量/Programs/DATA+/scvis-dev/output/bipolar/normal.tsv'
+tsv_file = './data/normal.tsv'
 table = pd.read_table(tsv_file, sep='\t')
-table.to_csv('/Users/dzy/Desktop/变量/Programs/DATA+/scvis-dev/output/bipolar/normal.csv', index=False)
+table.to_csv('./data/normal.csv', index=False)
 
 # read the csv
 df = pd.read_csv(
-    '/Users/dzy/Desktop/变量/Programs/DATA+/scvis-dev/output/bipolar/normal.csv')
+    './data/normal.csv')
 normal = df.drop('Unnamed: 0', 1)
 
 # reading the log likelihood file
-tsv_file = '/Users/dzy/Desktop/变量/Programs/DATA+/scvis-dev/output/bipolar/log_likelihood.tsv'
+tsv_file = './data/log_likelihood.tsv'
 table = pd.read_table(tsv_file, sep='\t')
-table.to_csv('/Users/dzy/Desktop/变量/Programs/DATA+/scvis-dev/output/bipolar/log_likelihood.csv', index=False)
+table.to_csv('./data/log_likelihood.csv', index=False)
 
 df = pd.read_csv(
-    '/Users/dzy/Desktop/变量/Programs/DATA+/scvis-dev/output/bipolar/log_likelihood.csv')
+    './data/log_likelihood.csv')
 likelihood = df.drop('Unnamed: 0', 1)
 likelihood = pd.concat([normal, likelihood], axis=1)
 
 # reading the learning file
-tsv_file = '/Users/dzy/Desktop/变量/Programs/DATA+/scvis-dev/output/bipolar/learn.tsv'
+tsv_file = './data/learn.tsv'
 table = pd.read_table(tsv_file, sep='\t')
-table.to_csv('/Users/dzy/Desktop/变量/Programs/DATA+/scvis-dev/output/bipolar/learn.csv', index=False)
+table.to_csv('./data/learn.csv', index=False)
 
 learn = pd.read_csv(
-    '/Users/dzy/Desktop/变量/Programs/DATA+/scvis-dev/output/bipolar/learn.csv')
+    './data/learn.csv')
 
-# We only use one image for demonstration purpose
 figures = {
     # data plot
     'normal':
