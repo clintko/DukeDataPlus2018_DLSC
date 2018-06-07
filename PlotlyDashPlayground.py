@@ -176,8 +176,7 @@ app.layout = html.Div(style={"height": "200vh", "font-family": "Georgia"}, child
         html.Div([
             html.Div([
                 html.H4(style={"margin-left": "8.66666666667%"}, children='Kuei Yueh Ko'),
-                html.P(style={"margin-left": "8.66666666667%"}, children="""My name is Daniel Tao. I\'m currently a
-            Duke 2021 undergraduate majoring in ECE and Computer Science.""")
+                html.P(style={"margin-left": "8.66666666667%"}, children="""My name is Kuei blablabla""")
             ], className="five columns"),
             html.Div([
                 html.H3(style={"margin-right": "8.66666666667%"}, children='My Image'),
@@ -190,8 +189,7 @@ app.layout = html.Div(style={"height": "200vh", "font-family": "Georgia"}, child
         html.Div([
             html.Div([
                 html.H4(style={"margin-left": "8.66666666667%"}, children='Doc. Cliburn Chan'),
-                html.P(style={"margin-left": "8.66666666667%"}, children="""My name is Daniel Tao. I\'m currently a
-            Duke 2021 undergraduate majoring in ECE and Computer Science.""")
+                html.P(style={"margin-left": "8.66666666667%"}, children="""I am Doc Cilburn Chan blablabla""")
             ], className="five columns"),
             html.Div([
                 html.H3(style={"margin-right": "8.66666666667%"}, children='My Image'),
@@ -206,7 +204,7 @@ app.layout = html.Div(style={"height": "200vh", "font-family": "Georgia"}, child
 
         html.Div(
             dcc.Tabs(
-                id = "Tabs",
+                id="Tabs",
                 tabs=[
                     {"label": 'normal', 'value': 'normal'},
                     {"label": 'log likelihood', 'value': 'likelihood'},
