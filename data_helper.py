@@ -9,17 +9,18 @@ class data(object):
     # return a dictionary
     def readFile(self):
         dic = {}
-        for column in self.geneList():
-            dic[column] = self.df[column].tolist()
+        genes=self.geneList()
+        for i in range(0,len(genes)):
+            dic[genes[i]] = self.df.iloc[i].tolist()[1::]
         return dic
 
-    # return the list of Genes
-    def geneList(self):
+    # return the list of cells
+    def cellIndex(self):
         result = list(self.df.columns.values)
         return result[1::]
 
-    # return the list of cell index
-    def cellIndex(self):
+    # return the list of genes
+    def geneList(self):
         return list(self.df['GENE'].values)
 
     # return an numpy matrix of the values
@@ -29,9 +30,12 @@ class data(object):
         result = np.zeros(shape=(len(genes), len(self.cellIndex())))
         for i in range(0, len(genes)):
             result[i] = dict[genes[i]]
-        return np.transpose(result)
+        return result.transpose()
 
 if __name__ == "__main__":
-    data = data("./data/Airway.tsv").getMatrix()
-    print(data)
-    print(data.shape)
+    data = data("./data/Airway.tsv")
+    print(data.df.shape)
+    print(len(data.geneList()))
+    print(data.geneList())
+    print(data.cellIndex())
+    print(data.getMatrix().shape)
