@@ -11,15 +11,21 @@ class data(object):
         dic = {}
         for column in self.geneList():
             dic[column] = self.df[column].tolist()
+        print('dic')
+        print(dic)
         return dic
 
     # return the list of Genes
     def geneList(self):
         result = list(self.df.columns.values)
+        print('result[1::]')
+        print(result[1::])
         return result[1::]
 
     # return the list of cell index
     def cellIndex(self):
+        print('list(self.df[GENE].values)')
+        print(list(self.df['GENE'].values))
         return list(self.df['GENE'].values)
 
     # return an numpy matrix of the values
