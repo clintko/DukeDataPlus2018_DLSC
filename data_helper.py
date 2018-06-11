@@ -38,4 +38,3 @@ if __name__ == "__main__":
     print(len(data.geneList()))
     print(data.geneList())
     print(data.cellIndex())
-print(data.getMatrix().shape)
