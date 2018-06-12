@@ -8,9 +8,11 @@ def getData(filepath):
     return data_helper.data(filepath).getMatrix()
 
 def dataPreprocess(matrix):
+    # normalized data to be between [-1, 1]
     max_val = matrix.max()
     mean_val = matrix.mean()
-    return (matrix - mean_val)/max_val
+    # convert from float64 to float32
+    return np.float32((matrix - mean_val)/max_val)
 
 def train(filepath, learning_rate, batch_size, epoch):
     # load data
@@ -80,7 +82,7 @@ def train(filepath, learning_rate, batch_size, epoch):
 
         # save the model
         saver = tf.train.Saver()
-        save_path = saver.save(sess, "/model/model.ckpt")
+        save_path = saver.save(sess, "./model/model.ckpt")
 
         # test
         test_matrix = getTestData(myMatrix)
@@ -168,8 +170,8 @@ def getLatentSpace(filepath, model):
     with tf.Session() as sess:
         saver.restore(sess, model)
         latentSpace = encoder(myMatrix, weights, bias)
-        np.save("latentSpace.txt", latentSpace)
-
+        np.savetxt("latentSpace.txt", latentSpace.eval(), delimiter="\t")
 
 if __name__ == "__main__":
-    train("./data/Airway.tsv", learning_rate=0.1, batch_size=100, epoch=1000)
+    # train("./data/Airway.tsv", learning_rate=0.1, batch_size=100, epoch=1000)
+    getLatentSpace('./data/Airway.tsv', './model/model.ckpt')
