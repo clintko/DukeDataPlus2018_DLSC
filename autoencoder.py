@@ -28,14 +28,15 @@ def train(filepath, learning_rate, batch_size, epoch):
     # set layer neural numbers
     layer1_num = 512
     layer2_num = 256
-    layer3_num = 100
+    layer3_num = 128
+    layer4_num = 50
 
     # set input
     x = tf.placeholder("float", shape=[None, input_length])
 
     # set weights and bias
-    weights = setWeight(input_length, layer1_num, layer2_num, layer3_num)
-    bias = setBias(input_length, layer1_num, layer2_num, layer3_num)
+    weights = setWeight(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
+    bias = setBias(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
 
     # set up model
     latent_space = encoder(x, weights, bias)
@@ -110,7 +111,10 @@ def encoder(x, weights, bias):
     layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2, weights['encoder_h3']),
                                    bias['encoder_b3']))
 
-    return layer_3
+    layer_4 = tf.nn.sigmoid(tf.add(tf.matmul(layer_3, weights['encoder_h4']),
+                                   bias['encoder_b4']))
+
+    return layer_4
 
 def decoder(x, weights, bias):
     # Encoder Hidden layer with sigmoid activation #1
@@ -123,26 +127,33 @@ def decoder(x, weights, bias):
     layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2, weights['decoder_h3']),
                                    bias['decoder_b3']))
 
-    return layer_3
+    layer_4 = tf.nn.sigmoid(tf.add(tf.matmul(layer_3, weights['decoder_h4']),
+                                   bias['decoder_b4']))
 
-def setWeight(input_length, layer1_num, layer2_num, layer3_num):
+    return layer_4
+
+def setWeight(input_length, layer1_num, layer2_num, layer3_num, layer4_num):
     return {
         "encoder_h1": tf.Variable(tf.random_normal([input_length, layer1_num])),
         "encoder_h2": tf.Variable(tf.random_normal([layer1_num, layer2_num])),
         "encoder_h3": tf.Variable(tf.random_normal([layer2_num, layer3_num])),
-        "decoder_h1": tf.Variable(tf.random_normal([layer3_num, layer2_num])),
-        "decoder_h2": tf.Variable(tf.random_normal([layer2_num, layer1_num])),
-        "decoder_h3": tf.Variable(tf.random_normal([layer1_num, input_length]))
+        "encoder_h4": tf.Variable(tf.random_normal([layer3_num, layer4_num])),
+        "decoder_h1": tf.Variable(tf.random_normal([layer4_num, layer3_num])),
+        "decoder_h2": tf.Variable(tf.random_normal([layer3_num, layer2_num])),
+        "decoder_h3": tf.Variable(tf.random_normal([layer2_num, layer1_num])),
+        "decoder_h4": tf.Variable(tf.random_normal([layer1_num, input_length]))
     }
 
-def setBias(input_length, layer1_num, layer2_num, layer3_num):
+def setBias(input_length, layer1_num, layer2_num, layer3_num, layer4_num):
     return {
         "encoder_b1": tf.Variable(tf.random_normal([layer1_num])),
         "encoder_b2": tf.Variable(tf.random_normal([layer2_num])),
         "encoder_b3": tf.Variable(tf.random_normal([layer3_num])),
-        "decoder_b1": tf.Variable(tf.random_normal([layer2_num])),
-        "decoder_b2": tf.Variable(tf.random_normal([layer1_num])),
-        "decoder_b3": tf.Variable(tf.random_normal([input_length]))
+        "encoder_b4": tf.Variable(tf.random_normal([layer4_num])),
+        "decoder_b1": tf.Variable(tf.random_normal([layer3_num])),
+        "decoder_b2": tf.Variable(tf.random_normal([layer2_num])),
+        "decoder_b3": tf.Variable(tf.random_normal([layer1_num])),
+        "decoder_b4": tf.Variable(tf.random_normal([input_length]))
     }
 
 def getTrainData(matrix):
@@ -159,11 +170,12 @@ def getLatentSpace(filepath, model):
     # set layer nums
     layer1_num = 512
     layer2_num = 256
-    layer3_num = 100
+    layer3_num = 128
+    layer4_num = 50
 
     # set weight and bias
-    weights = setWeight(input_length, layer1_num, layer2_num, layer3_num)
-    bias = setBias(input_length, layer1_num, layer2_num, layer3_num)
+    weights = setWeight(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
+    bias = setBias(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
 
     # load model
     saver=tf.train.Saver()
@@ -173,5 +185,5 @@ def getLatentSpace(filepath, model):
         np.savetxt("latentSpace.txt", latentSpace.eval(), delimiter="\t")
 
 if __name__ == "__main__":
-    # train("./data/Airway.tsv", learning_rate=0.1, batch_size=100, epoch=1000)
+    #train("./data/Airway.tsv", learning_rate=0.1, batch_size=100, epoch=1000)
     getLatentSpace('./data/Airway.tsv', './model/model.ckpt')

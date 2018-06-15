@@ -22,20 +22,20 @@ def getGeneValue(filename):
     plt.ylabel("gene sum")
     fig.savefig("geneValue.png")
 
-def getTsne(filename):
-    data = pd.read_table(filename).values
-    X_tsne = TSNE().fit_transform(data)
+def getTsne(filepath, filename):
+    data = pd.read_table(filepath).values
+    X_tsne = TSNE(learning_rate=200).fit_transform(data)
     Xtsne = X_tsne[:, 0]
     Ytsne = X_tsne[:, 1]
     lisXtsne = Xtsne.tolist()
     lisYtsne = Ytsne.tolist()
     fig = plt.figure(figsize=(20, 10), dpi=80, facecolor='w', edgecolor='k')
     for i in range(len(lisXtsne)):
-        plt.scatter(lisXtsne[i], lisYtsne[i], s=10,)
-        plt.title('Autoencoder-100d-tSNE')
+        plt.scatter(lisXtsne[i], lisYtsne[i], c='k')
+        plt.title(filename)
         plt.xlabel('x')
         plt.ylabel('y')
-    fig.savefig("Autoencoder-100-tSNE.png")
+    fig.savefig("./process_images/" + filename)
 
 if __name__ == "__main__":
-    getTsne("latentSpace.txt")
+    getTsne("./data/filtered_Airway.txt", "TSNE with Scanpy.png")

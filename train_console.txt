@@ -1,13 +1,13 @@
-at epoch 0 the loss is 0.4762311913073063
-at epoch 100 the loss is 0.20701924711465836
-at epoch 200 the loss is 0.19417261704802513
-at epoch 300 the loss is 0.18470135889947414
-at epoch 400 the loss is 0.17932318523526192
-at epoch 500 the loss is 0.1712751928716898
-at epoch 600 the loss is 0.1677124910056591
-at epoch 700 the loss is 0.16580190137028694
-at epoch 800 the loss is 0.16435611806809902
-at epoch 900 the loss is 0.16260070726275444
-After training, the test loss is 0.16119857877492905
+at epoch 0 the loss is 0.47224752604961395
+at epoch 100 the loss is 0.24876468628644943
+at epoch 200 the loss is 0.23077449202537537
+at epoch 300 the loss is 0.22369810566306114
+at epoch 400 the loss is 0.2157494630664587
+at epoch 500 the loss is 0.21165129356086254
+at epoch 600 the loss is 0.20763750560581684
+at epoch 700 the loss is 0.20496508106589317
+at epoch 800 the loss is 0.20266801863908768
+at epoch 900 the loss is 0.20137721672654152
+After training, the test loss is 0.1985766589641571
 The model is saved in path: ./model/model.ckpt
-it takes 29.33259598016739 minutes to train
+it takes 31.326883109410605 minutes to train
