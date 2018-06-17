@@ -28,13 +28,7 @@ class data(object):
     
     # return an numpy matrix of the values
     def getMatrix(self):
-        dict = self.readFile()
-        genes = self.geneList()
-        cells = self.cellIndex()
-        result = np.zeros(shape=(len(cells), len(genes)))
-        for i in range(0, len(cells)):
-            result[i] = dict[cells[i]]
-        return result
+        return self.df.values
 
     def saveTransposed(self):
         self.df.to_csv("./data/transposed_Airway.csv")
@@ -51,9 +45,11 @@ class data(object):
         # save to file
         np.savetxt("./data/filtered_Airway.txt", adata.X, delimiter="\t")
 
+def loadTSV(filename):
+    return pd.read_table(filename).values
+
 if __name__ == "__main__":
     data = data("./data/Airway.tsv")
     #data.saveTransposed()
 #    print(data.df.iloc[:, 0])
-    #print(data.getMatrix().shape)
-    data.getScanpy(100, 50)
+    print(data.getMatrix() == data.matrix())
