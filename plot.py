@@ -3,12 +3,15 @@ from data_helper import data
 from data_helper import loadTSV
 import numpy as np
 from sklearn.manifold import TSNE
-import pandas as pd
+from seaborn import heatmap
 
 # draw hotmap
 def getHeatmap(filename):
-    a = data(filename).getMatrix()
-    plt.imshow(a, cmap='hot', interpolation='nearest')
+    try:
+        a = data(filename).getMatrix()
+    except KeyError:
+        a = loadTSV(filename)
+    heatmap(a)
     plt.show()
 
 def getGeneValue(filename):
@@ -43,4 +46,4 @@ def getTsne(filepath, filename, cluster_label=[]):
     fig.savefig("./process_images/" + filename)
 
 if __name__ == "__main__":
-    getTsne("./data/filtered_Airway.txt", "TSNE with Scanpy.png")
+    getHeatmap("./data/latentSpace.txt")
