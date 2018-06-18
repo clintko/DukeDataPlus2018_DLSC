@@ -46,4 +46,4 @@ def getTsne(filepath, filename, cluster_label=[]):
     fig.savefig("./process_images/" + filename)
 
 if __name__ == "__main__":
-    getHeatmap("./data/latentSpace.txt")
+    getTsne("./data/filtered_Gland.txt", "Tsne_Gland.png")

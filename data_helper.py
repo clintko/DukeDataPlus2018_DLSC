@@ -8,6 +8,7 @@ class data(object):
         self.df = pd.read_table(filename)
         self.df.set_index("GENE", inplace=True)
         self.df = self.df.transpose()
+        self.filename = filename
 
     # return a dictionary
     def readFile(self):
@@ -30,11 +31,11 @@ class data(object):
     def getMatrix(self):
         return self.df.values
 
-    def saveTransposed(self):
-        self.df.to_csv("./data/transposed_Airway.csv")
+    def saveTransposed(self, filename):
+        self.df.to_csv(filename)
 
-    def getScanpy(self, mingenes, mincells):
-        adata = sc.read_csv("./data/transposed_Airway.csv")
+    def getScanpy(self, filename, target, mingenes, mincells):
+        adata = sc.read_csv(filename)
 
         # filter out insignificant cells
         sc.pp.filter_cells(adata, min_genes=mingenes)
@@ -43,13 +44,12 @@ class data(object):
         sc.pp.filter_genes(adata, min_cells=mincells)
 
         # save to file
-        np.savetxt("./data/filtered_Airway.txt", adata.X, delimiter="\t")
+        np.savetxt(target, adata.X, delimiter="\t")
 
 def loadTSV(filename):
     return pd.read_table(filename).values
 
 if __name__ == "__main__":
-    data = data("./data/Airway.tsv")
-    #data.saveTransposed()
-#    print(data.df.iloc[:, 0])
-    print(data.getMatrix() == data.matrix())
+    data = data("./data/Gland.tsv")
+    data.saveTransposed("./data/transposed_Gland.csv")
+    data.getScanpy("./data/transposed_Gland.csv", "./data/filtered_Gland.txt", 100, 50)
