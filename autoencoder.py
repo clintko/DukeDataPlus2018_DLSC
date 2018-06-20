@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 def getData(filepath):
-    return data_helper.data(filepath).getMatrix()
+    return data_helper.loadTSV(filepath)
 
 def dataPreprocess(matrix):
     # normalized data to be between [-1, 1]
@@ -14,7 +14,7 @@ def dataPreprocess(matrix):
     # convert from float64 to float32
     return np.float32((matrix - mean_val)/max_val)
 
-def train(filepath, learning_rate, batch_size, epoch):
+def train(filepath, model_path, learning_rate, batch_size, epoch):
     # load data
     myMatrix = dataPreprocess(getData(filepath))
     input_length = myMatrix.shape[1]
@@ -23,7 +23,7 @@ def train(filepath, learning_rate, batch_size, epoch):
     start = time.time()
 
     # open console
-    console = open('train_console.txt', "w")
+    console = open(model_path + 'train_console.txt', "w")
 
     # set layer neural numbers
     layer1_num = 512
@@ -79,11 +79,11 @@ def train(filepath, learning_rate, batch_size, epoch):
         plt.xlabel("epoch")
         plt.ylabel("loss")
         plt.title("loss VS. epoch")
-        fig.savefig("loss_epoch.png")
+        fig.savefig(model_path + "loss_epoch.png")
 
         # save the model
         saver = tf.train.Saver()
-        save_path = saver.save(sess, "./model/model.ckpt")
+        save_path = saver.save(sess, model_path + "model.ckpt")
 
         # test
         test_matrix = getTestData(myMatrix)
@@ -97,7 +97,7 @@ def train(filepath, learning_rate, batch_size, epoch):
         console.write("The model is saved in path: %s\n" % save_path)
 
     # end time
-    end =time.time()
+    end = time.time()
     console.write("it takes {} minutes to train\n".format((end-start)/60))
 
 def encoder(x, weights, bias):
@@ -162,7 +162,7 @@ def getTrainData(matrix):
 def getTestData(matrix):
     return np.concatenate((matrix[1:101:2], matrix[850:]), axis=0)
 
-def getLatentSpace(filepath, model):
+def getLatentSpace(filepath, target_path, model_dir):
     # load data
     myMatrix = dataPreprocess(getData(filepath))
     input_length = myMatrix.shape[1]
@@ -178,11 +178,11 @@ def getLatentSpace(filepath, model):
     bias = setBias(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
 
     # load model
-    saver=tf.train.Saver()
+    saver = tf.train.Saver()
     with tf.Session() as sess:
-        saver.restore(sess, model)
+        saver.restore(sess, model_dir + "model.ckpt")
         latentSpace = encoder(myMatrix, weights, bias)
-        np.savetxt("latentSpace.txt", latentSpace.eval(), delimiter="\t")
+        np.savetxt(target_path + "latentSpace.txt", latentSpace.eval(), delimiter="\t")
 
 if __name__ == "__main__":
     #train("./data/Airway.tsv", learning_rate=0.1, batch_size=100, epoch=1000)

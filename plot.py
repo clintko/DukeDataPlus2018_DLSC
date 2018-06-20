@@ -43,7 +43,7 @@ def getTsne(filepath, filename, cluster_label=[]):
     plt.title(filename)
     plt.xlabel('x')
     plt.ylabel('y')
-    fig.savefig("./process_images/" + filename)
+    fig.savefig(filename)
 
 if __name__ == "__main__":
     getTsne("./data/filtered_Gland.txt", "Tsne_Gland.png")

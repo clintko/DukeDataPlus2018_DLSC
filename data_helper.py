@@ -34,17 +34,17 @@ class data(object):
     def saveTransposed(self, filename):
         self.df.to_csv(filename)
 
-    def getScanpy(self, filename, target, mingenes, mincells):
-        adata = sc.read_csv(filename)
+def getScanpy(filename, target, mingenes, mincells):
+    adata = sc.read_csv(filename)
 
-        # filter out insignificant cells
-        sc.pp.filter_cells(adata, min_genes=mingenes)
+    # filter out insignificant cells
+    sc.pp.filter_cells(adata, min_genes=mingenes)
 
-        # filter out insignificant genes
-        sc.pp.filter_genes(adata, min_cells=mincells)
+    # filter out insignificant genes
+    sc.pp.filter_genes(adata, min_cells=mincells)
 
-        # save to file
-        np.savetxt(target, adata.X, delimiter="\t")
+    # save to file
+    np.savetxt(target, adata.X, delimiter="\t")
 
 def loadTSV(filename):
     return pd.read_table(filename).values
