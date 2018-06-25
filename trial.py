@@ -3,7 +3,7 @@ import data_helper
 import cluster
 import autoencoder
 import os
-
+from data_helper import scanpy
 
 def trial(filepath, mingene, mincell):
     # make dir
@@ -18,18 +18,30 @@ def trial(filepath, mingene, mincell):
         os.makedirs(model_dir)
 
     # filter data
-    filter = data_dir + "filtered.txt"
-    data_helper.getScanpy(filepath, filter, mincells=mincell, mingenes=mingene)
+    filtered = data_dir + "filtered.txt"
+    sc = scanpy(filepath, mingenes=mingene, mincells=mincell)
+    sc.getScanpy(filtered)
+
+    # train autoencoder
+    autoencoder.train(filtered, model_dir, learning_rate=0.1, batch_size=100, epoch=800)
 
     # generate tsne
-    plot.getTsne(filter, graph_dir + "tsne.png")
+    plot.getTsne(filtered, graph_dir + "tsne.png")
 
     # generate kmeans
-    cluster.kmeans(filter, graph_dir + "tsne with kmeans.png")
+    k = cluster.kmeans(filtered, graph_dir + "tsne with kmeans.png")
 
-    # train the autoencoder
-    autoencoder.train(filter, model_dir, learning_rate=0.1, batch_size=100, epoch=800)
-    autoencoder.getLatentSpace(filter, data_dir, model_dir)
+    # generate centroid values
+    c = cluster.getCentroids(k, cluster.tsne(filtered), )
+    cluster.getGeneofCentroids(filtered, graph_dir + "centroid gene matrix.txt", c)
+
+    # get cell index of centroids
+    cindex = [sc.getFilteredCellList()[i] for i in c]
+    with open(graph_dir + "centroidCellIndex.txt", "w") as out:
+        out.write(str(cindex))
+
+    # get latent space
+    autoencoder.getLatentSpace(filtered, data_dir, model_dir)
     latent = data_dir + "latentSpace.txt"
 
     # generate graphs for latent space
@@ -39,6 +51,15 @@ def trial(filepath, mingene, mincell):
     # generate kmeans
     cluster.kmeans(latent, graph_dir + "tsne with kmeans_latent.png")
 
+    # generate centroid values
+    c = cluster.getCentroids(k, cluster.tsne(latent), )
+    cluster.getGeneofCentroids(latent, graph_dir + "centroid gene matrix_latent.txt", c)
+
+    # get cell index of centroids
+    cindex = [sc.getFilteredCellList()[i] for i in c]
+    with open(graph_dir + "centroidCellIndex_latent.txt", "w") as out:
+        out.write(str(cindex))
+
 
 if __name__ == "__main__":
-    trial("./data/transposed_Airway.csv", mincell=10, mingene=100)
+    trial("./data/transposed_Airway.csv", mincell=50, mingene=100)

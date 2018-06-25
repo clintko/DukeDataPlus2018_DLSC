@@ -19,12 +19,13 @@ def getGeneValue(filename):
     y = []
     for row in matrix[0:]:
         y.append(np.sum(row))
-    fig = plt.figure()
+
     plt.plot(range(0, matrix.shape[0]), y, "r-")
     plt.title("Sum of gene expressions vs. cell num")
     plt.xlabel("cell")
     plt.ylabel("gene sum")
-    fig.savefig("geneValue.png")
+    plt.savefig("geneValue.png")
+    plt.close()
 
 def getTsne(filepath, filename, cluster_label=[]):
     data = loadTSV(filepath)
@@ -46,4 +47,4 @@ def getTsne(filepath, filename, cluster_label=[]):
     fig.savefig(filename)
 
 if __name__ == "__main__":
-    getTsne("./data/filtered_Gland.txt", "Tsne_Gland.png")
+    getGeneValue("./data/Gland.tsv")
