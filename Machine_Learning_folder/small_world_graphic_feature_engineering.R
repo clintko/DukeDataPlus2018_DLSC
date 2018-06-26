@@ -6,16 +6,55 @@ library(UpSetR)
 library(ggplot2)
 library(grid)
 library(plyr)
+library(infotheo)
 
-data(syn.data)
-data(syn.net)
+syn.data <- read.csv("/Users/dzy/Desktop/变量/Programs/DATA+/DukeDataPlus2018_DLSC/data/labeled_filtered_Gland.csv")
+
 
 clr.net <- minet(syn.data, "clr", "spearman", "equalfreq")
-clr.val <-validate(clr.net,syn.net)
+#clr.val <-validate(clr.net,syn.net)
 ara.net <- minet(syn.data, "aracne", "spearman", "equalfreq")
-ara.val <-validate(ara.net,syn.net)
+#ara.val <-validate(ara.net,syn.net)
 mr.net <- minet(syn.data, "mrnet", "spearman", "equalfreq")
-mr.val <-validate(mr.net,syn.net)
+#mr.val <-validate(mr.net,syn.net)
+
+discdata <- discretize(syn.data,"equalfreq",50)
+mim <- build.mim(discdata,"spearman")
+mr.net <- mrnet(mim)
+write.csv(mr.net, file = "/Users/dzy/Desktop/变量/Programs/DATA+/DukeDataPlus2018_DLSC/Machine_Learning_folder/unnormed_mr_confusion_matrix.csv")
+
+
+
+write.csv(ara.net, file = "/Users/dzy/Desktop/变量/Programs/DATA+/DukeDataPlus2018_DLSC/data/ara_confusion_matrix.csv")
+write.csv(clr.net, file = "/Users/dzy/Desktop/变量/Programs/DATA+/DukeDataPlus2018_DLSC/data/clr_confusion_matrix.csv")
+write.csv(mr.net, file = "/Users/dzy/Desktop/变量/Programs/DATA+/DukeDataPlus2018_DLSC/data/mr_confusion_matrix.csv")
+
+mr <- mr.net
+mr <- log(mr)
+
+par(bg = "lightgray")
+hist(mr,200,col = "black",xlab = "natural logrithm of MI expression",ylab = "expression count")
+grid(col = "white",lty= "solid")
+
+mr[mr> quantile(mr,prob=25/100)] = 1
+mr[mr<= quantile(mr,prob=25/100)] = 0
+
+graph <- as(mr,"graphNEL")
+plot(graph, attrs=list(node=list(fillcolor="lightgreen",size=20),edge=list(color="cyan"),graph=list(rankdir="LR")))
+
+
+inf.net[inf.net<0.2468986] = 0
+graph <- as(inf.net,"graphNEL")
+hist(inf.net,100)
+plot(graph, attrs=list(node=list(fillcolor="lightgreen",size=20),edge=list(color="cyan"),graph=list(rankdir="LR")))
+graph2 <- as(syn.net,"graphNEL")
+plot(graph2, attrs=list(node=list(fillcolor="lightgreen",size=20),edge=list(color="cyan"),graph=list(rankdir="LR")))
+show.
+
+
+
+
+
 
 #plotting pr curves with clr aracne mrnet
 dev <- show.pr(clr.val,col="blue", type="l",pch = 3,cex=0.3,lwd=2)
@@ -40,12 +79,3 @@ legend("bottomright",
        cex=1, title = "ROC Curve")
 
 
-show.roc(val,col="blue", type="b",pch = 3,cex=0.3)
-
-inf.net[inf.net<0.2468986] = 0
-graph <- as(inf.net,"graphNEL")
-hist(inf.net,100)
-plot(graph, attrs=list(node=list(fillcolor="lightgreen",size=20),edge=list(color="cyan"),graph=list(rankdir="LR")))
-graph2 <- as(syn.net,"graphNEL")
-plot(graph2, attrs=list(node=list(fillcolor="lightgreen",size=20),edge=list(color="cyan"),graph=list(rankdir="LR")))
-show.
