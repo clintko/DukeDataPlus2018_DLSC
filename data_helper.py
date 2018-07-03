@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import scanpy.api as sc
+import math
 
 class data(object):
     
@@ -44,7 +45,14 @@ class scanpy(object):
         # filter out insignificant genes
         sc.pp.filter_genes(self.adata, min_cells=mincells)
 
+        # log1p
+        self.adata.X = math.log(self.adata.X + 1)
+
+        # filter dispersion
+        sc.pp.filter_genes_dispersion(self.adata, min_disp=0.5)
+
     def getScanpy(self, target):
+        print(self.adata.X.shape)
         np.savetxt(target, self.adata.X, delimiter="\t")
 
     def getFilteredGeneList(self):
@@ -56,7 +64,9 @@ class scanpy(object):
 def loadTSV(filename):
     return pd.read_table(filename).values
 
+def loadCSV(filename):
+    return pd.read_csv(filename).values
+
 if __name__ == "__main__":
     data = data("./data/Gland.tsv")
     data.saveTransposed("./data/transposed_Gland.csv")
-    getScanpy("./data/transposed_Gland.csv", "./data/filtered_Gland.txt", 100, 50)

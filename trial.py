@@ -5,7 +5,7 @@ import autoencoder
 import os
 from data_helper import scanpy
 
-def trial(filepath, mingene, mincell):
+def trial(filepath, mingene, mincell, cnum=8):
     # make dir
     data_dir = "./data/" + "mincell=" + str(mincell) + "_mingene=" + str(mingene) + "/"
     graph_dir = "./process_images/" + "mincell=" + str(mincell) + "_mingene=" + str(mingene) + "/"
@@ -23,13 +23,13 @@ def trial(filepath, mingene, mincell):
     sc.getScanpy(filtered)
 
     # train autoencoder
-    autoencoder.train(filtered, model_dir, learning_rate=0.1, batch_size=100, epoch=800)
+#    autoencoder.train(filtered, model_dir, learning_rate=0.1, batch_size=100, epoch=800)
 
     # generate tsne
     plot.getTsne(filtered, graph_dir + "tsne.png")
 
     # generate kmeans
-    k = cluster.kmeans(filtered, graph_dir + "tsne with kmeans.png")
+    k = cluster.kmeans(filtered, graph_dir + "tsne with kmeans.png", cnum)
 
     # generate centroid values
     c = cluster.getCentroids(k, cluster.tsne(filtered), )
@@ -49,7 +49,7 @@ def trial(filepath, mingene, mincell):
     plot.getTsne(latent, graph_dir + "tsne_latent.png")
 
     # generate kmeans
-    cluster.kmeans(latent, graph_dir + "tsne with kmeans_latent.png")
+    cluster.kmeans(latent, graph_dir + "tsne with kmeans_latent.png", cnum)
 
     # generate centroid values
     c = cluster.getCentroids(k, cluster.tsne(latent), )
@@ -62,4 +62,4 @@ def trial(filepath, mingene, mincell):
 
 
 if __name__ == "__main__":
-    trial("./data/transposed_Airway.csv", mincell=50, mingene=100)
+    trial("./data/transposed_Airway.csv", mincell=1, mingene=500)

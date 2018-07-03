@@ -1,8 +1,9 @@
 from sklearn.cluster import KMeans
 from plot import getTsne
 import numpy as np
+from sklearn.mixture import BayesianGaussianMixture
 from sklearn.manifold import TSNE
-from data_helper import loadTSV
+from data_helper import loadTSV, loadCSV
 
 def kmeans(filename, target_name, clusters=8):
     # use kmeans on tsne
@@ -47,10 +48,17 @@ def getGeneofCentroids(filename, target, index):
         result[num, :] = matrix[i, :]
     np.savetxt(target, result, delimiter="\t")
 
-if __name__ == "__main__":
-    a = getCentroids(kmeans("./data/mincell=50_mingene=100/filtered.txt",
-                            "./process_images/mincell=50_mingene=100/Tsne-Kmeans.png", 7),
-                     tsne("./data/mincell=50_mingene=100/filtered.txt"))
-    getGeneofCentroids("./data/mincell=50_mingene=100/filtered.txt", "./data/mincell=50_mingene=100/centroidCells.txt"
-                       , a)
+def getBayesianGaussian(filename, targetname):
+    # use Bayesian Gaussian model on tsne
+    matrix = tsne(filename)
 
+    # fit the model
+    model = BayesianGaussianMixture(n_components=8).fit(matrix)
+    label = model.predict(matrix)
+    print(label)
+
+    # generate graph
+    getTsne(filename, targetname, label)
+
+if __name__ == "__main__":
+    getBayesianGaussian("./data/fakedata_latent.txt", "./process_images/kmeansOnfakeData_latent.png")

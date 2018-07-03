@@ -5,7 +5,7 @@ import numpy as np
 import time
 
 def getData(filepath):
-    return data_helper.loadTSV(filepath)
+    return data_helper.loadCSV(filepath)
 
 def dataPreprocess(matrix):
     # normalized data to be between [-1, 1]
@@ -29,7 +29,7 @@ def train(filepath, model_path, learning_rate, batch_size, epoch):
     layer1_num = 512
     layer2_num = 256
     layer3_num = 128
-    layer4_num = 50
+    layer4_num = 100
 
     # set input
     x = tf.placeholder("float", shape=[None, input_length])
@@ -171,7 +171,7 @@ def getLatentSpace(filepath, target_path, model_dir):
     layer1_num = 512
     layer2_num = 256
     layer3_num = 128
-    layer4_num = 50
+    layer4_num = 100
 
     # set weight and bias
     weights = setWeight(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
@@ -185,5 +185,5 @@ def getLatentSpace(filepath, target_path, model_dir):
         np.savetxt(target_path + "latentSpace.txt", latentSpace.eval(), delimiter="\t")
 
 if __name__ == "__main__":
-    #train("./data/Airway.tsv", learning_rate=0.1, batch_size=100, epoch=1000)
-    getLatentSpace('./data/Airway.tsv', './model/model.ckpt')
+    #train("./data/fakedata.csv", "./model/", learning_rate=0.1, batch_size=100, epoch=1000)
+    getLatentSpace('./data/fakedata.csv', "./data/fakedata_latent.txt", './model/')

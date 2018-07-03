@@ -1,0 +1,82 @@
+*
+{
+  margin: 0;
+  padding: 0;
+}
+
+a
+{
+  text-decoration: none;
+}
+
+header
+{
+  background-color: #CEF0EF;
+  width: 100%;
+  position: fixed;
+}
+
+.images
+{
+  margin-top:10vh;
+  margin-left: 10%;
+  margin-right: auto;
+  width: 80%;
+  padding-right: 0;
+  display: inline-block;
+}
+
+.empty
+{
+  height: 5vh;
+}
+
+.jumbotron
+{
+  margin-left: 10%;
+  margin-right: auto;
+  width: 80%;
+  border: solid 1px gray;
+}
+
+.table
+{
+  height: 100vh;
+}
+
+.menu-bar
+{
+  background-color: #CEF0EF;
+  float:right;
+  list-style: none;
+  margin-right: 5vh;
+  margin-top: 2vh;
+}
+
+.menu-bar li
+{
+  display: inline-block;
+}
+
+.menu-bar li a
+{
+  float: right;
+  color: black;
+  padding: 2vh;
+  text-decoration: none;
+  font-size: 15px;
+  font-family: "Verdana", sans-serif;
+}
+
+.active
+{
+  border: 2px solid white;
+}
+
+.logo
+{
+  background-color: #CEF0EF;
+  position: absolute;
+  left: 2vh;
+  top: 2vh;
+}

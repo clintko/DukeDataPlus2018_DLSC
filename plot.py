@@ -1,6 +1,6 @@
 import matplotlib.pyplot as plt
 from data_helper import data
-from data_helper import loadTSV
+from data_helper import loadTSV, loadCSV
 import numpy as np
 from sklearn.manifold import TSNE
 from seaborn import heatmap
@@ -47,4 +47,4 @@ def getTsne(filepath, filename, cluster_label=[]):
     fig.savefig(filename)
 
 if __name__ == "__main__":
-    getGeneValue("./data/Gland.tsv")
+    getTsne("./data/fakedata_latent.txt", "./process_images/tnse_on_fakedata_latent.png")
