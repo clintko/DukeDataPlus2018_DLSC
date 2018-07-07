@@ -5,7 +5,7 @@ from sklearn.mixture import BayesianGaussianMixture
 from sklearn.manifold import TSNE
 from data_helper import loadTSV, loadCSV
 
-def kmeans(filename, target_name, clusters=8):
+def kmeans(filename, target_name="", clusters=8):
     # use kmeans on tsne
     matrix = tsne(filename)
 
@@ -13,8 +13,9 @@ def kmeans(filename, target_name, clusters=8):
     k = KMeans(n_clusters=clusters).fit_predict(matrix)
 
     # generate graph
-    getTsne(filename, target_name, k)
-    return KMeans(n_clusters=clusters)
+    if not target_name=="":
+        getTsne(filename, target_name, k)
+    return KMeans(n_clusters=clusters), k
 
 def tsne(filepath):
     # get tsne coordinates

@@ -3,11 +3,12 @@ import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
 import plot
+import cluster
 
 # load file and generate tsne
 filepath = '../data/mincell=50_mingene=100/filtered.txt'
 tsne = plot.getTsne(filepath)
-
+_, color_mask = cluster.kmeans(filepath)
 app = dash.Dash()
 
 app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, children=[
@@ -22,11 +23,8 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
             html.Li(children=["Team"], style={"font-size": "15px", "display": "inline-block", "padding": "2vh"})
         ])]),
 
-    # empty
-    html.Br(),
-
     # graph
-    html.Div(style={"border": "solid"}, children=[
+    html.Div(style={"border": "solid gray"}, children=[
         dcc.Graph(
             id="graph-1",
             figure={
@@ -36,7 +34,6 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                         y=tsne[1],
                         mode="markers",
                         marker=dict(
-                            size=16,
                               # set color equal to a variable
                             colorscale='Viridis',
                             showscale=True
@@ -50,57 +47,44 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                         "family": "Raleway",
                         "size": "5vh"
                     },
-                    height="100vh",
-                    width="40%",
+                    height="200vh",
+                    width="30%",
                     hovermode="closest",
                     margin={
-                        "r": 20,
+                        "r": 0,
                         "t": 50,
-                        "b": 20,
-                        "l": 50
+                        "b": 40,
+                        "l": 100
                     },
                     xaxis={
-                        "autorange": True,
-                        "linecolor": "rgb(0, 0, 0)",
-                        "linewidth": 1,
-                        "range": [],
-                        "showgrid": False,
-                        "showline": True,
-                        "title": "",
-                        "type": "linear"
+                        "range": [-30, 30],
+                        "zeroline": False
                     },
                     yaxis={
-                        "autorange": False,
-                        "gridcolor": "rgba(127, 127, 127, 0.2)",
                         "mirror": False,
-                        "nticks": 0,
-                        "range": [],
-                        "showgrid": True,
-                        "showline": True,
-                        "ticklen": 10,
-                        "ticks": "outside",
-                        "title": "",
-                        "type": "linear",
+                        "range": [-30, 30],
                         "zeroline": False,
-                        "zerolinewidth": 4
+
                     }
                 )
             },
             config={
                 'displayModeBar': False
-            }
+            },
+            style={'display': "inline-block"}
         ),
         dcc.Graph(
             id="graph-2",
-            figure={
+            config={
+                'displayModeBar': False
+            },figure={
                 'data': [
                     go.Scattergl(
                         x=tsne[0],
                         y=tsne[1],
                         mode="markers",
                         marker=dict(
-                            size=16,
-                              # set color equal to a variable
+                            color=color_mask,  # set color equal to a variable
                             colorscale='Viridis',
                             showscale=True
                         )
@@ -108,53 +92,100 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                 ],
                 'layout': go.Layout(
                     autosize=False,
-                    title="TSNE",
+                    title="TSNE with KMeans",
                     font={
                         "family": "Raleway",
                         "size": "5vh"
                     },
-                    height="100vh",
+                    height="200vh",
                     width="40%",
                     hovermode="closest",
                     margin={
-                        "r": 20,
+                        "r": 0,
                         "t": 50,
-                        "b": 20,
-                        "l": 50
+                        "b": 40,
+                        "l": 100
                     },
                     xaxis={
-                        "autorange": True,
-                        "linecolor": "rgb(0, 0, 0)",
-                        "linewidth": 1,
-                        "range": [],
-                        "showgrid": False,
-                        "showline": True,
-                        "title": "",
-                        "type": "linear"
+                        "range": [-30, 30],
+                        "zeroline": False
                     },
                     yaxis={
-                        "autorange": False,
-                        "gridcolor": "rgba(127, 127, 127, 0.2)",
-                        "mirror": False,
-                        "nticks": 0,
-                        "range": [],
-                        "showgrid": True,
-                        "showline": True,
-                        "ticklen": 10,
-                        "ticks": "outside",
-                        "title": "",
-                        "type": "linear",
-                        "zeroline": False,
-                        "zerolinewidth": 4
-                    }
+                        "range": [-30, 30],
+                        "zeroline": False
+                        }
                 )
             },
-            config={
-                'displayModeBar': False
-            }
+            style={'display': "inline-block", "width": "30%"}
+        ),
+        dcc.Dropdown(
+            options=[
+                {"label": "3", "value": 3},
+                {"label": "4", "value": 4},
+                {"label": "5", "value": 5},
+                {"label": "6", "value": 6},
+                {"label": "7", "value": 7},
+                {"label": "8", "value": 8}
+            ],
+            placeholder="Select k value",
+            style={'display': "inline-block", "width": "10%"},
+            value=8,
+            id="kmean-dropdown"
         )
     ]),
+
+    # table
+    html.Div(style={"border": "solid gray", "width": "50%"}, children=[
+        html.H1("table here")
     ])
+
+])
+
+
+@app.callback(
+    dash.dependencies.Output('graph-2', 'figure'),
+    [dash.dependencies.Input('kmean-dropdown', 'value')])
+def update_graph_2(value):
+    _, color_mask = cluster.kmeans(filepath, clusters=value)
+    return {
+                'data': [
+                    go.Scattergl(
+                        x=tsne[0],
+                        y=tsne[1],
+                        mode="markers",
+                        marker=dict(
+                            color=color_mask,  # set color equal to a variable
+                            colorscale='Viridis',
+                            showscale=True
+                        )
+                    )
+                ],
+                'layout': go.Layout(
+                    autosize=False,
+                    title="TSNE with KMeans",
+                    font={
+                        "family": "Raleway",
+                        "size": "5vh"
+                    },
+                    height="200vh",
+                    width="40%",
+                    hovermode="closest",
+                    margin={
+                        "r": 0,
+                        "t": 50,
+                        "b": 40,
+                        "l": 100
+                    },
+                    xaxis={
+                        "range": [-30, 30],
+                        "zeroline": False
+                    },
+                    yaxis={
+                        "range": [-30, 30],
+                        "zeroline": False
+                        }
+                )
+            }
 
 
 if __name__ == "__main__":

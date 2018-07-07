@@ -3,40 +3,39 @@ import data_helper
 import matplotlib.pyplot as plt
 import numpy as np
 import time
+import os
+import math
 
 def getData(filepath):
-    return data_helper.loadCSV(filepath)
-
-def dataPreprocess(matrix):
-    # normalized data to be between [-1, 1]
-    max_val = matrix.max()
-    mean_val = matrix.mean()
-    # convert from float64 to float32
-    return np.float32((matrix - mean_val)/max_val)
+    data = data_helper.loadTSV(filepath)
+    return data
 
 def train(filepath, model_path, learning_rate, batch_size, epoch):
     # load data
-    myMatrix = dataPreprocess(getData(filepath))
+    myMatrix = getData(filepath)
     input_length = myMatrix.shape[1]
-
+    print(input_length)
     # start time
     start = time.time()
+
+    # create model path if not existed
+    if not os.path.exists(model_path):
+        os.makedirs(model_path)
 
     # open console
     console = open(model_path + 'train_console.txt', "w")
 
     # set layer neural numbers
-    layer1_num = 512
+    layer1_num = 256
     layer2_num = 256
-    layer3_num = 128
-    layer4_num = 100
+    layer3_num = 100
 
     # set input
     x = tf.placeholder("float", shape=[None, input_length])
 
     # set weights and bias
-    weights = setWeight(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
-    bias = setBias(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
+    weights = setWeight(input_length, layer1_num, layer2_num, layer3_num)
+    bias = setBias(input_length, layer1_num, layer2_num, layer3_num)
 
     # set up model
     latent_space = encoder(x, weights, bias)
@@ -92,8 +91,8 @@ def train(filepath, model_path, learning_rate, batch_size, epoch):
         for _ in range(0, it_test):
             batch_test = test_matrix[_ * batch_size:(_ + 1) * batch_size]
             l_test += sess.run(loss, feed_dict={x: batch_test})
-        print("After training, the test loss is {}\n".format(l_test/2))
-        console.write("After training, the test loss is {}\n".format(l_test/2))
+        print("After training, the test loss is {}\n".format(l_test/it_test))
+        console.write("After training, the test loss is {}\n".format(l_test/it_test))
         console.write("The model is saved in path: %s\n" % save_path)
 
     # end time
@@ -111,17 +110,17 @@ def encoder(x, weights, bias):
     layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2, weights['encoder_h3']),
                                    bias['encoder_b3']))
 
-    layer_4 = tf.nn.sigmoid(tf.add(tf.matmul(layer_3, weights['encoder_h4']),
-                                   bias['encoder_b4']))
+ #   layer_4 = tf.nn.sigmoid(tf.add(tf.matmul(layer_3, weights['encoder_h4']),
+  #                                 bias['encoder_b4']))
 
-    return layer_4
+    return layer_3
 
 def decoder(x, weights, bias):
     # Encoder Hidden layer with sigmoid activation #1
-    layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x, weights['decoder_h1']),
-                                   bias['decoder_b1']))
+   # layer_1 = tf.nn.sigmoid(tf.add(tf.matmul(x, weights['decoder_h1']),
+  #                                 bias['decoder_b1']))
     # Encoder Hidden layer with sigmoid activation #2
-    layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(layer_1, weights['decoder_h2']),
+    layer_2 = tf.nn.sigmoid(tf.add(tf.matmul(x, weights['decoder_h2']),
                                    bias['decoder_b2']))
     # Encoder Hidden layer with sigmoid activation #3
     layer_3 = tf.nn.sigmoid(tf.add(tf.matmul(layer_2, weights['decoder_h3']),
@@ -132,24 +131,21 @@ def decoder(x, weights, bias):
 
     return layer_4
 
-def setWeight(input_length, layer1_num, layer2_num, layer3_num, layer4_num):
+def setWeight(input_length, layer1_num, layer2_num, layer3_num):
     return {
         "encoder_h1": tf.Variable(tf.random_normal([input_length, layer1_num])),
         "encoder_h2": tf.Variable(tf.random_normal([layer1_num, layer2_num])),
         "encoder_h3": tf.Variable(tf.random_normal([layer2_num, layer3_num])),
-        "encoder_h4": tf.Variable(tf.random_normal([layer3_num, layer4_num])),
-        "decoder_h1": tf.Variable(tf.random_normal([layer4_num, layer3_num])),
         "decoder_h2": tf.Variable(tf.random_normal([layer3_num, layer2_num])),
         "decoder_h3": tf.Variable(tf.random_normal([layer2_num, layer1_num])),
         "decoder_h4": tf.Variable(tf.random_normal([layer1_num, input_length]))
     }
 
-def setBias(input_length, layer1_num, layer2_num, layer3_num, layer4_num):
+def setBias(input_length, layer1_num, layer2_num, layer3_num):
     return {
         "encoder_b1": tf.Variable(tf.random_normal([layer1_num])),
         "encoder_b2": tf.Variable(tf.random_normal([layer2_num])),
         "encoder_b3": tf.Variable(tf.random_normal([layer3_num])),
-        "encoder_b4": tf.Variable(tf.random_normal([layer4_num])),
         "decoder_b1": tf.Variable(tf.random_normal([layer3_num])),
         "decoder_b2": tf.Variable(tf.random_normal([layer2_num])),
         "decoder_b3": tf.Variable(tf.random_normal([layer1_num])),
@@ -164,18 +160,18 @@ def getTestData(matrix):
 
 def getLatentSpace(filepath, target_path, model_dir):
     # load data
-    myMatrix = dataPreprocess(getData(filepath))
+    myMatrix = getData(filepath)
+    myMatrix = myMatrix.astype("float32")
     input_length = myMatrix.shape[1]
 
     # set layer nums
-    layer1_num = 512
+    layer1_num = 256
     layer2_num = 256
-    layer3_num = 128
-    layer4_num = 100
+    layer3_num = 100
 
     # set weight and bias
-    weights = setWeight(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
-    bias = setBias(input_length, layer1_num, layer2_num, layer3_num, layer4_num)
+    weights = setWeight(input_length, layer1_num, layer2_num, layer3_num)
+    bias = setBias(input_length, layer1_num, layer2_num, layer3_num)
 
     # load model
     saver = tf.train.Saver()
@@ -185,5 +181,5 @@ def getLatentSpace(filepath, target_path, model_dir):
         np.savetxt(target_path + "latentSpace.txt", latentSpace.eval(), delimiter="\t")
 
 if __name__ == "__main__":
-    train("./data/fakedata.csv", "./model/", learning_rate=0.1, batch_size=100, epoch=1000)
-    getLatentSpace('./data/fakedata.csv', "./data/fakedata_latent.txt", './model/')
+    # train("./data/labelled_data/filtered.txt", "./model/labelled_data/", learning_rate=0.1, batch_size=100, epoch=1000)
+    getLatentSpace('./data/labelled_data/filtered.txt', "./data/labelled_data/", './model/labelled_data/')

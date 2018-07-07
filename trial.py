@@ -23,17 +23,13 @@ def trial(filepath, mingene, mincell, cnum=8):
     sc.getScanpy(filtered)
 
     # train autoencoder
-<<<<<<< Updated upstream
-#    autoencoder.train(filtered, model_dir, learning_rate=0.1, batch_size=100, epoch=800)
-=======
     # autoencoder.train(filtered, model_dir, learning_rate=0.1, batch_size=100, epoch=800)
->>>>>>> Stashed changes
 
     # generate tsne
     plot.getTsne(filtered, graph_dir + "tsne.png")
 
     # generate kmeans
-    k = cluster.kmeans(filtered, graph_dir + "tsne with kmeans.png", cnum)
+    k, _ = cluster.kmeans(filtered, graph_dir + "tsne with kmeans.png", cnum)
 
     # generate centroid values
     c = cluster.getCentroids(k, cluster.tsne(filtered), )
@@ -66,5 +62,4 @@ def trial(filepath, mingene, mincell, cnum=8):
 
 
 if __name__ == "__main__":
-    trial("./data/transposed_Airway.csv", mincell=1, mingene=500)
-
+    trial("./data/data_indexed_with_label_transposed.csv", mincell=3, mingene=200)

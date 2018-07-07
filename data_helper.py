@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import scanpy.api as sc
 import math
+import os
 
 class data(object):
     
@@ -52,6 +53,7 @@ class scanpy(object):
         sc.pp.filter_genes_dispersion(self.adata, min_disp=0.5)
 
     def getScanpy(self, target):
+        print(self.adata.X.shape)
         np.savetxt(target, self.adata.X, delimiter="\t")
 
     def getFilteredGeneList(self):
@@ -67,5 +69,5 @@ def loadCSV(filename):
     return pd.read_csv(filename).values
 
 if __name__ == "__main__":
-    data = data("./data/Gland.tsv")
-    data.saveTransposed("./data/transposed_Gland.csv")
+    data = scanpy("./data/data_indexed_with_label_transposed.csv", mincells=3, mingenes=200)
+    data.getScanpy("./data/labelled_data/filtered.txt")

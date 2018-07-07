@@ -7,14 +7,7 @@ from data_helper import loadTSV, loadCSV
 from sklearn.decomposition import IncrementalPCA
 
 
-def PCA(data, component):
-    X = data
-    ipca = IncrementalPCA(n_components=component, batch_size=500)
-    X_ipca = ipca.fit_transform(X)
-    return X_ipca
-
-
-def kmeans(filename, target_name, clusters=8):
+def kmeans(filename, target_name="", clusters=8):
     # use kmeans on tsne
     matrix = tsne(filename)
 
@@ -22,14 +15,21 @@ def kmeans(filename, target_name, clusters=8):
     k = KMeans(n_clusters=clusters).fit_predict(matrix)
 
     # generate graph
-    getTsne(filename, target_name, k)
-    return KMeans(n_clusters=clusters)
+    if not target_name=="":
+        getTsne(filename, target_name, k)
+    return KMeans(n_clusters=clusters), k
+
+
+def PCA(data, component):
+    X = data
+    ipca = IncrementalPCA(n_components=component, batch_size=500)
+    X_ipca = ipca.fit_transform(X)
+    return X_ipca
 
 
 def tsne(filepath):
     # get tsne coordinates
     return TSNE(random_state=0).fit_transform(loadTSV(filepath))
-
 
 def getClosest(lst, centroid):
     # calculate the closest point to the centroid
@@ -42,7 +42,6 @@ def getClosest(lst, centroid):
             index = i
     return index
 
-
 def getCentroids(k, matrix):
     # get index of Centroids
     locs = k.fit(matrix).cluster_centers_
@@ -50,7 +49,6 @@ def getCentroids(k, matrix):
     for loc in locs:
         index.append(getClosest(matrix, loc))
     return index
-
 
 def getGeneofCentroids(filename, target, index):
     # save gene lists of centroid cells
@@ -60,7 +58,6 @@ def getGeneofCentroids(filename, target, index):
     for i in index:
         result[num, :] = matrix[i, :]
     np.savetxt(target, result, delimiter="\t")
-
 
 def getBayesianGaussian(filename, targetname):
     # use Bayesian Gaussian model on tsne
@@ -73,7 +70,6 @@ def getBayesianGaussian(filename, targetname):
 
     # generate graph
     getTsne(filename, targetname, label)
-
 
 if __name__ == "__main__":
     getBayesianGaussian("./data/fakedata_latent.txt", "./process_images/kmeansOnfakeData_latent.png")
