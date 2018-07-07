@@ -23,7 +23,11 @@ def trial(filepath, mingene, mincell, cnum=8):
     sc.getScanpy(filtered)
 
     # train autoencoder
+<<<<<<< Updated upstream
 #    autoencoder.train(filtered, model_dir, learning_rate=0.1, batch_size=100, epoch=800)
+=======
+    # autoencoder.train(filtered, model_dir, learning_rate=0.1, batch_size=100, epoch=800)
+>>>>>>> Stashed changes
 
     # generate tsne
     plot.getTsne(filtered, graph_dir + "tsne.png")
@@ -63,3 +67,4 @@ def trial(filepath, mingene, mincell, cnum=8):
 
 if __name__ == "__main__":
     trial("./data/transposed_Airway.csv", mincell=1, mingene=500)
+

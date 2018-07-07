@@ -1,0 +1,11 @@
+at epoch 0 the loss is 0.4758777283132076
+at epoch 100 the loss is 0.17662956379354
+at epoch 200 the loss is 0.15356450527906418
+at epoch 300 the loss is 0.14744791947305202
+at epoch 400 the loss is 0.14319033920764923
+at epoch 500 the loss is 0.14091472327709198
+at epoch 600 the loss is 0.1399240754544735
+at epoch 700 the loss is 0.1387921404093504
+After training, the test loss is 1.2363655716180801
+The model is saved in path: ./model/mincell=50_mingene=100/model.ckpt
+it takes 11.94289472103119 minutes to train

@@ -46,13 +46,12 @@ class scanpy(object):
         sc.pp.filter_genes(self.adata, min_cells=mincells)
 
         # log1p
-        self.adata.X = math.log(self.adata.X + 1)
+        self.adata.X = np.log(self.adata.X + 1)
 
         # filter dispersion
         sc.pp.filter_genes_dispersion(self.adata, min_disp=0.5)
 
     def getScanpy(self, target):
-        print(self.adata.X.shape)
         np.savetxt(target, self.adata.X, delimiter="\t")
 
     def getFilteredGeneList(self):
