@@ -4,6 +4,8 @@ import numpy as np
 from sklearn.mixture import BayesianGaussianMixture
 from sklearn.manifold import TSNE
 from data_helper import loadTSV, loadCSV
+from sklearn.decomposition import IncrementalPCA
+
 
 def kmeans(filename, target_name="", clusters=8):
     # use kmeans on tsne
@@ -16,6 +18,14 @@ def kmeans(filename, target_name="", clusters=8):
     if not target_name=="":
         getTsne(filename, target_name, k)
     return KMeans(n_clusters=clusters), k
+
+
+def PCA(data, component):
+    X = data
+    ipca = IncrementalPCA(n_components=component, batch_size=500)
+    X_ipca = ipca.fit_transform(X)
+    return X_ipca
+
 
 def tsne(filepath):
     # get tsne coordinates

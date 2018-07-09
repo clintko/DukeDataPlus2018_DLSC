@@ -5,9 +5,24 @@ import plotly.graph_objs as go
 import plot
 import cluster
 
+# load method from txt
+def load(file):
+    with open(file, "r") as o:
+        data = o.read()
+    lines = data.splitlines()
+    n = int(lines[0])
+    x = []
+    y = []
+    c = []
+    for n_ in range(n):
+        print(lines[1 + n_].split()[0])
+        x.append(float(lines[1 + n_].split()[0]))
+        y.append(float(lines[1 + n_].split()[1]))
+    return x, y, c
+
 # load file and generate tsne
-filepath = '../data/mincell=50_mingene=100/filtered.txt'
-tsne = plot.getTsne(filepath)
+filepath = './data/tsne.txt'
+tsne = load(filepath)
 _, color_mask = cluster.kmeans(filepath)
 app = dash.Dash()
 
@@ -25,6 +40,20 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
 
     # graph
     html.Div(style={"border": "solid gray"}, children=[
+        html.H3("Input K number", style={"margin-right": "3vh"}),
+        dcc.Dropdown(
+            options=[
+                {"label": "3", "value": 3},
+                {"label": "4", "value": 4},
+                {"label": "5", "value": 5},
+                {"label": "6", "value": 6},
+                {"label": "7", "value": 7},
+                {"label": "8", "value": 8}
+            ],
+            placeholder="Select k value",
+            value=8,
+            id="kmean-dropdown"
+        ),
         dcc.Graph(
             id="graph-1",
             figure={
@@ -64,7 +93,6 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                         "mirror": False,
                         "range": [-30, 30],
                         "zeroline": False,
-
                     }
                 )
             },
@@ -73,6 +101,7 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
             },
             style={'display': "inline-block"}
         ),
+
         dcc.Graph(
             id="graph-2",
             config={
@@ -117,20 +146,6 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                 )
             },
             style={'display': "inline-block", "width": "30%"}
-        ),
-        dcc.Dropdown(
-            options=[
-                {"label": "3", "value": 3},
-                {"label": "4", "value": 4},
-                {"label": "5", "value": 5},
-                {"label": "6", "value": 6},
-                {"label": "7", "value": 7},
-                {"label": "8", "value": 8}
-            ],
-            placeholder="Select k value",
-            style={'display': "inline-block", "width": "10%"},
-            value=8,
-            id="kmean-dropdown"
         )
     ]),
 
