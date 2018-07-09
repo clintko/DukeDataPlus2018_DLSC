@@ -13,17 +13,28 @@ def load(file):
     n = int(lines[0])
     x = []
     y = []
-    c = []
     for n_ in range(n):
-        print(lines[1 + n_].split()[0])
         x.append(float(lines[1 + n_].split()[0]))
         y.append(float(lines[1 + n_].split()[1]))
-    return x, y, c
+    return x, y
 
-# load file and generate tsne
+def loadColorMask(file):
+    with open(file, "r") as o:
+        data = o.read()
+    lines = data.splitlines()
+    result = []
+    for n_ in range(len(lines)):
+        result.append(int(lines[n_]))
+    return result
+
+# load file
 filepath = './data/tsne.txt'
 tsne = load(filepath)
-_, color_mask = cluster.kmeans(filepath)
+filename = "../data/mincell=3_mingene=200/filtered.txt"
+#color_mask = []
+#for k_ in range(1, 9):
+ #   color_mask.append(loadColorMask("./data/color_mask_" + str(k_) + ".txt"))
+_, color_mask = cluster.kmeans(filename)
 app = dash.Dash()
 
 app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, children=[
@@ -106,7 +117,7 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
             id="graph-2",
             config={
                 'displayModeBar': False
-            },figure={
+            }, figure={
                 'data': [
                     go.Scattergl(
                         x=tsne[0],
@@ -161,7 +172,7 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
     dash.dependencies.Output('graph-2', 'figure'),
     [dash.dependencies.Input('kmean-dropdown', 'value')])
 def update_graph_2(value):
-    _, color_mask = cluster.kmeans(filepath, clusters=value)
+    _, color_mask = cluster.kmeans(filename, clusters=value)
     return {
                 'data': [
                     go.Scattergl(
