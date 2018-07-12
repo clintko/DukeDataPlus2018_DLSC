@@ -31,10 +31,12 @@ def loadColorMask(file):
 filepath = './data/tsne.txt'
 tsne = load(filepath)
 filename = "../data/mincell=3_mingene=200/filtered.txt"
-#color_mask = []
-#for k_ in range(1, 9):
- #   color_mask.append(loadColorMask("./data/color_mask_" + str(k_) + ".txt"))
-_, color_mask = cluster.kmeans(filename)
+color_mask = []
+for k_ in range(1, 9):
+    color_mask.append(loadColorMask("./data/color_mask_" + str(k_) + ".txt"))
+
+# _, color_mask = cluster.kmeans(filename)
+
 app = dash.Dash()
 
 app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, children=[
@@ -49,9 +51,12 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
             html.Li(children=["Team"], style={"font-size": "15px", "display": "inline-block", "padding": "2vh"})
         ])]),
 
+    # empty placeholder
+    html.Div(style={"height": "5vh"}),
+
     # graph
     html.Div(style={"border": "solid gray"}, children=[
-        html.H3("Input K number", style={"margin-right": "3vh"}),
+        html.H3("Input K number", style={"margin-left": "3vh"}),
         dcc.Dropdown(
             options=[
                 {"label": "3", "value": 3},
@@ -97,12 +102,12 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                         "l": 100
                     },
                     xaxis={
-                        "range": [-30, 30],
+                        "range": [-100, 100],
                         "zeroline": False
                     },
                     yaxis={
                         "mirror": False,
-                        "range": [-30, 30],
+                        "range": [-100, 100],
                         "zeroline": False,
                     }
                 )
@@ -124,7 +129,7 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                         y=tsne[1],
                         mode="markers",
                         marker=dict(
-                            color=color_mask,  # set color equal to a variable
+                            color=color_mask[7],  # set color equal to a variable
                             colorscale='Viridis',
                             showscale=True
                         )
@@ -147,11 +152,11 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                         "l": 100
                     },
                     xaxis={
-                        "range": [-30, 30],
+                        "range": [-100, 100],
                         "zeroline": False
                     },
                     yaxis={
-                        "range": [-30, 30],
+                        "range": [-100, 100],
                         "zeroline": False
                         }
                 )
@@ -159,6 +164,9 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
             style={'display': "inline-block", "width": "30%"}
         )
     ]),
+
+    # empty placeholder
+    html.Div(style={"height": "5vh"}),
 
     # table
     html.Div(style={"border": "solid gray", "width": "50%"}, children=[
@@ -172,7 +180,6 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
     dash.dependencies.Output('graph-2', 'figure'),
     [dash.dependencies.Input('kmean-dropdown', 'value')])
 def update_graph_2(value):
-    _, color_mask = cluster.kmeans(filename, clusters=value)
     return {
                 'data': [
                     go.Scattergl(
@@ -180,7 +187,7 @@ def update_graph_2(value):
                         y=tsne[1],
                         mode="markers",
                         marker=dict(
-                            color=color_mask,  # set color equal to a variable
+                            color=color_mask[value - 1],  # set color equal to a variable
                             colorscale='Viridis',
                             showscale=True
                         )
@@ -203,11 +210,11 @@ def update_graph_2(value):
                         "l": 100
                     },
                     xaxis={
-                        "range": [-30, 30],
+                        "range": [-100, 100],
                         "zeroline": False
                     },
                     yaxis={
-                        "range": [-30, 30],
+                        "range": [-100, 100],
                         "zeroline": False
                         }
                 )

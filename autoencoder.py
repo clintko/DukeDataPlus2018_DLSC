@@ -27,8 +27,8 @@ def train(filepath, model_path, learning_rate, batch_size, epoch):
 
     # set layer neural numbers
     layer1_num = 256
-    layer2_num = 256
-    layer3_num = 100
+    layer2_num = 100
+    layer3_num = 10
 
     # set input
     x = tf.placeholder("float", shape=[None, input_length])
@@ -166,8 +166,8 @@ def getLatentSpace(filepath, target_path, model_dir):
 
     # set layer nums
     layer1_num = 256
-    layer2_num = 256
-    layer3_num = 100
+    layer2_num = 100
+    layer3_num = 10
 
     # set weight and bias
     weights = setWeight(input_length, layer1_num, layer2_num, layer3_num)
@@ -181,5 +181,5 @@ def getLatentSpace(filepath, target_path, model_dir):
         np.savetxt(target_path + "latentSpace.txt", latentSpace.eval(), delimiter="\t")
 
 if __name__ == "__main__":
-    # train("./data/labelled_data/filtered.txt", "./model/labelled_data/", learning_rate=0.1, batch_size=100, epoch=1000)
+    #train("./data/labelled_data/filtered.txt", "./model/labelled_data/", learning_rate=0.1, batch_size=100, epoch=1000)
     getLatentSpace('./data/labelled_data/filtered.txt', "./data/labelled_data/", './model/labelled_data/')

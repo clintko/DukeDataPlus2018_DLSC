@@ -5,11 +5,16 @@ from sklearn.mixture import BayesianGaussianMixture
 from sklearn.manifold import TSNE
 from data_helper import loadTSV, loadCSV
 from sklearn.decomposition import IncrementalPCA
+import pandas as pd
+from sklearn.metrics import adjusted_rand_score
 
 
-def kmeans(filename, target_name="", clusters=8):
+def kmeans(filename, target_name="", clusters=8, raw=False):
     # use kmeans on tsne
-    matrix = tsne(filename)
+    if not raw:
+        matrix = tsne(filename)
+    else:
+        matrix = loadTSV(filename)
 
     # get kmeans labels
     k = KMeans(n_clusters=clusters).fit_predict(matrix)
@@ -29,7 +34,8 @@ def PCA(data, component):
 
 def tsne(filepath):
     # get tsne coordinates
-    return TSNE(random_state=0).fit_transform(loadTSV(filepath))
+    return TSNE(random_state=0).fit_transform(np.log1p(loadTSV(filepath)))
+
 
 def getClosest(lst, centroid):
     # calculate the closest point to the centroid
@@ -42,6 +48,7 @@ def getClosest(lst, centroid):
             index = i
     return index
 
+
 def getCentroids(k, matrix):
     # get index of Centroids
     locs = k.fit(matrix).cluster_centers_
@@ -49,6 +56,7 @@ def getCentroids(k, matrix):
     for loc in locs:
         index.append(getClosest(matrix, loc))
     return index
+
 
 def getGeneofCentroids(filename, target, index):
     # save gene lists of centroid cells
@@ -58,6 +66,34 @@ def getGeneofCentroids(filename, target, index):
     for i in index:
         result[num, :] = matrix[i, :]
     np.savetxt(target, result, delimiter="\t")
+
+
+def getAccuracy(truth_path, label):
+    df = pd.read_csv(truth_path, header='infer', index_col=0, sep='\t')
+    truth = np.array(list(df.index.values)[2:])
+    truth_relation = np.zeros((len(truth), len(truth)))
+    label_relation = np.zeros((len(label), len(label)))
+
+    for i in range(len(truth)):
+        for j in range(len(truth)):
+            if truth[i] == truth[j]:
+                truth_relation[i][j] = 0.5
+            else:
+                truth_relation[i][j] = -0.5
+
+    for i in range(len(label)):
+        for j in range(len(label)):
+            if label[i] == label[j]:
+                label_relation[i][j] = 0.5
+            else:
+                label_relation[i][j] = -0.5
+
+    accuracy = np.mean(np.abs(truth_relation+label_relation))
+    accuracy_rand = adjusted_rand_score(truth, label)
+
+    print("The BDSM accuracy is: {}".format(accuracy))
+    print("The RAND accuracy is: {}".format(accuracy_rand))
+
 
 def getBayesianGaussian(filename, targetname):
     # use Bayesian Gaussian model on tsne
@@ -72,4 +108,7 @@ def getBayesianGaussian(filename, targetname):
     getTsne(filename, targetname, label)
 
 if __name__ == "__main__":
-    getBayesianGaussian("./data/fakedata_latent.txt", "./process_images/kmeansOnfakeData_latent.png")
+    #getBayesianGaussian("./data/fakedata_latent.txt", "./process_images/kmeansOnfakeData_latent.png")
+    _, k = kmeans("./data/mincell=3_mingene=200/latentSpace.txt",
+                  "./process_images/mincell=3_mingene=200/tsne with kmeans_latent.png")
+    getAccuracy("./data/pbmc_gene=200_cell=3/filtered_headed.tsv", k)
