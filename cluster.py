@@ -34,7 +34,7 @@ def PCA(data, component):
 
 def tsne(filepath):
     # get tsne coordinates
-    return TSNE(random_state=0).fit_transform(np.log1p(loadTSV(filepath)))
+    return TSNE(random_state=0).fit_transform(loadTSV(filepath))
 
 
 def getClosest(lst, centroid):

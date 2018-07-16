@@ -5,14 +5,6 @@ import numpy as np
 from sklearn.manifold import TSNE
 from seaborn import heatmap
 
-# draw hotmap
-def getHeatmap(filename):
-    try:
-        a = data(filename).getMatrix()
-    except KeyError:
-        a = loadTSV(filename)
-    heatmap(a)
-    plt.show()
 
 def getGeneValue(filename):
     matrix = data(filename).getMatrix()

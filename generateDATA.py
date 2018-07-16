@@ -2,6 +2,9 @@ import plot
 import cluster
 import numpy as np
 import threading
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import os
 import time
 from data_helper import scanpy, loadTSV
 
@@ -38,18 +41,46 @@ def saveGeneTable(filename, target_dir, k):
         result[_] = np.mean(data[indexes[_]], axis=0)
     np.savetxt(target_dir + "geneTable_" + str(k) + ".txt", result.transpose(), delimiter="\t")
 
-if __name__ == "__main__":
+def savePCA(file, target_dir):
+    data = loadTSV(file)
+    pca = PCA(n_components=10).fit_transform(data)
+    print(type(pca))
+    np.savetxt(target_dir + "pca.txt", pca, delimiter="\t")
+
+def savePipeline(filtered_filename, unfiltered_filename, target_dir):
     threads = []
     start = time.time()
-    saveGeneTable("./data/mincell=3_mingene=200/filtered.txt", "./Website/data/PBMC/", 1)
-    for k in range(1,9):
-        t = threading.Thread(target=saveGeneTable, args=("./data/mincell=3_mingene=200/filtered.txt",
-                                                         "./Website/data/PBMC/", k))
-        t.start()
-        print("start")
-        threads.append(t)
-    for thread in threads:
-        thread.join()
-        print("finish")
+    # save kmeans color mask
+    for k in range(1, 9):
+        thread = threading.Thread(target=saveKmeans, args=(filtered_filename, target_dir, k))
+        thread.start()
+        threads.append(thread)
+        print("thread {} started".format(len(threads)))
+    # generate gene list
+    thread = threading.Thread(target=saveGeneList, args=(unfiltered_filename, target_dir))
+    threads.append(thread)
+    thread.start()
+    print("thread {} started".format(len(threads)))
+    for k in range(1, 9):
+        thread = threading.Thread(target=saveGeneTable, args=(filtered_filename, target_dir, k))
+        thread.start()
+        threads.append(thread)
+        print("thread {} started".format(len(threads)))
+    thread = threading.Thread(target=saveTsne, args=(filtered_filename, target_dir))
+    thread.start()
+    threads.append(thread)
+    print("thread {} started".format(len(threads)))
+    for th in threads:
+        th.join()
     end = time.time()
-    print("it takes {} minutes to run".format((end - start)/60))
+    print("It takes {} minutes to finish the pipeline".format((end - start) / 60))
+
+
+
+if __name__ == "__main__":
+    print(os.getcwd())
+    #savePCA("./data/labelled_data/filtered.txt", "./Website/data/PBMC/pca/")
+    savePipeline("./Website/data/PBMC/pca/pca.txt", "./data/data_indexed_with_label_transposed.csv",
+                 "./Website/data/PBMC/pca/")
+    #data = loadTSV("./Website/data/PBMC/pca/pca.txt")
+    #print(np.all(np.isfinite(np.log1p(data))))
