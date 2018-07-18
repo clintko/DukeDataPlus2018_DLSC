@@ -5,6 +5,7 @@ import plotly.graph_objs as go
 from seaborn import heatmap
 import cluster
 import numpy as np
+from data_helper import loadTSV
 
 # load method from txt
 def load(file):
@@ -48,8 +49,16 @@ def loadList(file):
     return result
 
 
+# load genelist
+genelist = loadList("./data/PBMC/genelist.txt")
+filtered = loadTSV("./data/PBMC/filtered.txt")
+dropdown_label = []
+color_mask_genes = []
+for i in range(len(genelist)):
+    dropdown_label.append({"label": genelist[i], "value": i})
+    color_mask_genes.append(filtered[:, i])
 
-
+# draw website
 app = dash.Dash()
 
 app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, children=[
@@ -71,74 +80,87 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
     html.Div(style={"border": "solid gray"}, children=[
         # dataset button
         html.Div(id="buttons", children=[
-        html.Div(id="dropdown1", children=[
-            html.H3("Choose dataset", style={"text-align": "center"}),
-            dcc.Dropdown(
-                options=[
-                    {"label": "PBMC", "value": 1}
-                ],
-                value=1,
-                id="dataset-dropdown"
-            )
-        ], style={"width": "20%", "display": "inline-block"}
-                 ),
+            html.Div(id="dropdown1", children=[
+                html.H3("Choose dataset", style={"text-align": "center"}),
+                dcc.Dropdown(
+                    options=[
+                        {"label": "PBMC", "value": 1}
+                    ],
+                    value=1,
+                    id="dataset-dropdown"
+                )
+            ], style={"width": "20%", "display": "inline-block"}
+                     ),
 
-        # dimension reduction button
-        html.Div(id="dropdown2", children=[
-            html.H3("Choose dimension reduction method", style={"text-align": "center"}),
-            dcc.Dropdown(
-                options=[
-                    {"label": "none", "value": 0},
-                    {"label": "PCA", "value": 1},
-                    {"label": "autoencoder", "value": 2},
-                ],
-                value=0,
-                id="dimension-dropdown"
-            )
-        ], style={"width": "20%", "display": "inline-block"}
-                 ),
+            # dimension reduction button
+            html.Div(id="dropdown2", children=[
+                html.H3("Choose dimension reduction method", style={"text-align": "center"}),
+                dcc.Dropdown(
+                    options=[
+                        {"label": "none", "value": 0},
+                        {"label": "PCA", "value": 1},
+                        {"label": "autoencoder", "value": 2},
+                    ],
+                    value=0,
+                    id="dimension-dropdown"
+                )
+            ], style={"width": "20%", "display": "inline-block"}
+                     ),
 
-        # k means button
-        html.Div(id="dropdown3", children=[
-            html.H3("Choose K value for KMeans clustering", style={"text-align": "center"}),
-            dcc.Dropdown(
-                options=[
-                    {"label": "2", "value": 2},
-                    {"label": "3", "value": 3},
-                    {"label": "4", "value": 4},
-                    {"label": "5", "value": 5},
-                    {"label": "6", "value": 6},
-                    {"label": "7", "value": 7},
-                    {"label": "8", "value": 8}
-                ],
-                placeholder="Select k value",
-                value=8,
-                id="kmean-dropdown"
-            )],
-                 style={"width": "20%", "display": "inline-block"}
-                 ),
+            # k means button
+            html.Div(id="dropdown3", children=[
+                html.H3("Choose K value for KMeans clustering", style={"text-align": "center"}),
+                dcc.Dropdown(
+                    options=[
+                        {"label": "2", "value": 2},
+                        {"label": "3", "value": 3},
+                        {"label": "4", "value": 4},
+                        {"label": "5", "value": 5},
+                        {"label": "6", "value": 6},
+                        {"label": "7", "value": 7},
+                        {"label": "8", "value": 8}
+                    ],
+                    placeholder="Select k value",
+                    value=8,
+                    id="kmean-dropdown"
+                )],
+                     style={"width": "20%", "display": "inline-block"}
+                     ),
 
-        # visualization button
-        html.Div(id="dropdown4", children=[
-            html.H3("Choose visualization", style={"text-align": "center"}),
-            dcc.Dropdown(
-                options=[
-                    {"label": "TSNE", "value": 0},
-                    {"label": "SCVIS", "value": 1}
-                ],
-                value=0,
-                id="visualization-dropdown"
-            )
-        ], style={"width": "20%", "display": "inline-block"}
-                 )], style={"align": "center"}),
+            # visualization button
+            html.Div(id="dropdown4", children=[
+                html.H3("Choose visualization", style={"text-align": "center"}),
+                dcc.Dropdown(
+                    options=[
+                        {"label": "TSNE", "value": 0},
+                        {"label": "SCVIS", "value": 1}
+                    ],
+                    value=0,
+                    id="visualization-dropdown"
+                )
+            ], style={"width": "20%", "display": "inline-block"}),
 
+            # gene button
+            html.Div(id="dropdown5", children=[
+                html.H3("Choose the gene to visualize", style={"text-align": "center"}),
+                dcc.Dropdown(
+                    options=dropdown_label,
+                    value=0,
+                    searchable=True,
+                    id="gene-dropdown"
+                )
+            ], style={"width": "20%", "display": "inline-block"})
+        ], style={"align": "center"}),
+
+
+        # Graphs
         dcc.Graph(
             id="graph-1",
             figure={},
             config={
                 'displayModeBar': False
             },
-            style={'display': "inline-block"}
+            style={'display': "inline-block", "width": "50%"}
         ),
 
         dcc.Graph(
@@ -172,21 +194,18 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
 
 @app.callback(
     dash.dependencies.Output("table", "children"),
-    [dash.dependencies.Input("kmean-dropdown", "value")])
+    [dash.dependencies.Input("kmean-dropdown", "value"),
+     dash.dependencies.Input("dimension-dropdown", "value")])
 def update_table(value, dim_method):
     # load data
     if dim_method == 0:
-        color_mask = []
         gene_tables = []
         for k_ in range(1, 9):
-            color_mask.append(loadColorMask("./data/PBMC/none/color_mask_" + str(k_) + ".txt"))
             gene_tables.append(loadTable("./data/PBMC/none/geneTable_" + str(k_) + ".txt"))
         gene_list = loadList("./data/PBMC/none/genelist.txt")
     else:
-        color_mask = []
         gene_tables = []
         for k_ in range(1, 9):
-            color_mask.append(loadColorMask("./data/PBMC/pca/color_mask_" + str(k_) + ".txt"))
             gene_tables.append(loadTable("./data/PBMC/pca/geneTable_" + str(k_) + ".txt"))
         gene_list = loadList("./data/PBMC/pca/genelist.txt")
 
@@ -239,18 +258,28 @@ def update_graph_2(value, dim_method):
     filepath_pca = "./data/PBMC/pca/tsne.txt"
     if dim_method == 0:
         tsne = load(filepath)
+        color_mask = []
+        for k_ in range(1, 9):
+            color_mask.append(loadColorMask("./data/PBMC/none/color_mask_" + str(k_) + ".txt"))
     else:
         tsne = load(filepath_pca)
+        color_mask = []
+        for k_ in range(1, 9):
+            color_mask.append(loadColorMask("./data/PBMC/pca/color_mask_" + str(k_) + ".txt"))
+    text = []
+    for i in color_mask[value - 1]:
+        text.append("Cluster " + str(i))
     return {
         'data': [
             go.Scattergl(
                 x=tsne[0],
                 y=tsne[1],
+                text=text,
                 mode="markers",
                 marker=dict(
                     color=color_mask[value - 1],  # set color equal to a variable
-                    colorscale='Viridis',
-                    showscale=True
+                    showscale=True,
+                    colorscale="Jet"
                 )
             )
         ],
@@ -285,27 +314,29 @@ def update_graph_2(value, dim_method):
 @app.callback(
     dash.dependencies.Output("graph-1", "figure"),
     [dash.dependencies.Input("visualization-dropdown", "value"),
-     dash.dependencies.Input("dimension-dropdown", "value")])
-def update_graph1(value, dim_method):
+     dash.dependencies.Input("dimension-dropdown", "value"),
+     dash.dependencies.Input("gene-dropdown", "value")])
+def update_graph1(value, dim_method, gene):
     filepath = './data/PBMC/none/tsne.txt'
     filepath_pca = "./data/PBMC/pca/tsne.txt"
     if not value:
         if dim_method == 0:
             tsne = load(filepath)
         else:
-            tsne=[]
+            tsne = load(filepath_pca)
         return {'data': [
             go.Scattergl(x=tsne[0],
             y=tsne[1],
             mode="markers",
             marker=dict(
                 # set color equal to a variable
+                color=color_mask_genes[gene],
                 colorscale='Viridis',
                 showscale=True
                 )
             )], 'layout': go.Layout(
             autosize=False,
-            title="TSNE",
+            title="TSNE with Genes",
             font={
                 "family": "Raleway",
                 "size": "5vh"

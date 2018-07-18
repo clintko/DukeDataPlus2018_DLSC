@@ -47,12 +47,12 @@ def savePCA(file, target_dir):
     print(type(pca))
     np.savetxt(target_dir + "pca.txt", pca, delimiter="\t")
 
-def savePipeline(filtered_filename, unfiltered_filename, target_dir):
+def savePipeline(filtered_filename_after_reduction, filtered_filename, unfiltered_filename, target_dir):
     threads = []
     start = time.time()
     # save kmeans color mask
     for k in range(1, 9):
-        thread = threading.Thread(target=saveKmeans, args=(filtered_filename, target_dir, k))
+        thread = threading.Thread(target=saveKmeans, args=(filtered_filename_after_reduction, target_dir, k))
         thread.start()
         threads.append(thread)
         print("thread {} started".format(len(threads)))
@@ -66,7 +66,7 @@ def savePipeline(filtered_filename, unfiltered_filename, target_dir):
         thread.start()
         threads.append(thread)
         print("thread {} started".format(len(threads)))
-    thread = threading.Thread(target=saveTsne, args=(filtered_filename, target_dir))
+    thread = threading.Thread(target=saveTsne, args=(filtered_filename_after_reduction, target_dir))
     thread.start()
     threads.append(thread)
     print("thread {} started".format(len(threads)))
@@ -80,7 +80,7 @@ def savePipeline(filtered_filename, unfiltered_filename, target_dir):
 if __name__ == "__main__":
     print(os.getcwd())
     #savePCA("./data/labelled_data/filtered.txt", "./Website/data/PBMC/pca/")
-    savePipeline("./Website/data/PBMC/pca/pca.txt", "./data/data_indexed_with_label_transposed.csv",
-                 "./Website/data/PBMC/pca/")
+    savePipeline("./Website/data/PBMC/pca/pca.txt", "./Website/data/PBMC/pca/filtered.txt",
+                 "./data/data_indexed_with_label_transposed.csv", "./Website/data/PBMC/pca/")
     #data = loadTSV("./Website/data/PBMC/pca/pca.txt")
     #print(np.all(np.isfinite(np.log1p(data))))
