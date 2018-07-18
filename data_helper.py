@@ -63,7 +63,7 @@ class scanpy(object):
         return self.adata.obs_names
 
 def loadTSV(filename):
-    return pd.read_table(filename).values
+    return pd.read_csv(filename, header='infer', index_col=0).values
 
 def loadCSV(filename):
     return pd.read_csv(filename).values
