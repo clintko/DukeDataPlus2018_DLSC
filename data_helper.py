@@ -38,7 +38,8 @@ class data(object):
 
 class scanpy(object):
     def __init__(self, filename, mingenes, mincells):
-        self.adata = sc.read_csv(filename)
+        self.adata = sc.read_text(filename).transpose()
+        print(self.adata.shape)
 
         # filter out insignificant cells
         sc.pp.filter_cells(self.adata, min_genes=mingenes)
@@ -63,11 +64,11 @@ class scanpy(object):
         return self.adata.obs_names
 
 def loadTSV(filename):
-    return pd.read_csv(filename, header='infer', index_col=0).values
+    return pd.read_table(filename).values
 
 def loadCSV(filename):
     return pd.read_csv(filename).values
 
 if __name__ == "__main__":
-    data = scanpy("./data/data_indexed_with_label_transposed.csv", mincells=3, mingenes=200)
-    data.getScanpy("./data/labelled_data/filtered.txt")
+    data = scanpy("./data/Airway.tsv", mincells=3, mingenes=200)
+    data.getScanpy("./data/filtered_Airway.txt")

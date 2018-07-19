@@ -50,8 +50,8 @@ def loadList(file):
 
 
 # load genelist
-genelist = loadList("./data/PBMC/genelist.txt")
-filtered = loadTSV("./data/PBMC/filtered.txt")
+genelist = loadList("./data/Airway/genelist.txt")
+filtered = loadTSV("./data/Airway/filtered.txt")
 dropdown_label = []
 color_mask_genes = []
 for i in range(len(genelist)):
@@ -180,14 +180,6 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
         # table
         html.Div(style={"border": "solid gray", "width": "100%", "text-align": "center", "display": "inline-block"},
                  id="table", children=[])
-
-        # heatmap
-        #dcc.Graph(
-        #    id="heatmap",
-         #   figure={},
-         #   style={"width": "40%", "display": "inline-block", "height": "80vh"}
-       # )
-    #], style={"width": "100%"}),
         ]
     )
 ])
@@ -201,13 +193,13 @@ def update_table(value, dim_method):
     if dim_method == 0:
         gene_tables = []
         for k_ in range(1, 9):
-            gene_tables.append(loadTable("./data/PBMC/none/geneTable_" + str(k_) + ".txt"))
-        gene_list = loadList("./data/PBMC/none/genelist.txt")
+            gene_tables.append(loadTable("./data/Airway/none/geneTable_" + str(k_) + ".txt"))
+        gene_list = loadList("./data/Airway/none/genelist.txt")
     else:
         gene_tables = []
         for k_ in range(1, 9):
-            gene_tables.append(loadTable("./data/PBMC/pca/geneTable_" + str(k_) + ".txt"))
-        gene_list = loadList("./data/PBMC/pca/genelist.txt")
+            gene_tables.append(loadTable("./data/Airway/pca/geneTable_" + str(k_) + ".txt"))
+        gene_list = loadList("./data/Airway/pca/genelist.txt")
 
     # generate table
     body = []
@@ -254,21 +246,23 @@ def update_table(value, dim_method):
     [dash.dependencies.Input('kmean-dropdown', 'value'),
      dash.dependencies.Input("dimension-dropdown", "value")])
 def update_graph_2(value, dim_method):
-    filepath = './data/PBMC/none/tsne.txt'
-    filepath_pca = "./data/PBMC/pca/tsne.txt"
+    filepath = './data/Airway/none/tsne.txt'
+    filepath_pca = "./data/Airway/pca/tsne.txt"
     if dim_method == 0:
         tsne = load(filepath)
         color_mask = []
         for k_ in range(1, 9):
-            color_mask.append(loadColorMask("./data/PBMC/none/color_mask_" + str(k_) + ".txt"))
+            color_mask.append(loadColorMask("./data/Airway/none/color_mask_" + str(k_) + ".txt"))
     else:
         tsne = load(filepath_pca)
         color_mask = []
         for k_ in range(1, 9):
-            color_mask.append(loadColorMask("./data/PBMC/pca/color_mask_" + str(k_) + ".txt"))
+            color_mask.append(loadColorMask("./data/Airway/pca/color_mask_" + str(k_) + ".txt"))
     text = []
     for i in color_mask[value - 1]:
         text.append("Cluster " + str(i))
+    rx = [min(tsne[0]) - 10, max(tsne[0]) + 10]
+    ry = [min(tsne[1]) - 10, max(tsne[1]) + 10]
     return {
         'data': [
             go.Scattergl(
@@ -300,11 +294,11 @@ def update_graph_2(value, dim_method):
                 "l": 100
             },
             xaxis={
-                "range": [-100, 100],
+                "range": rx,
                 "zeroline": False
             },
             yaxis={
-                "range": [-100, 100],
+                "range": ry,
                 "zeroline": False
                 }
         )
@@ -317,15 +311,17 @@ def update_graph_2(value, dim_method):
      dash.dependencies.Input("dimension-dropdown", "value"),
      dash.dependencies.Input("gene-dropdown", "value")])
 def update_graph1(value, dim_method, gene):
-    filepath = './data/PBMC/none/tsne.txt'
-    filepath_pca = "./data/PBMC/pca/tsne.txt"
-    if not value:
-        if dim_method == 0:
-            tsne = load(filepath)
-        else:
-            tsne = load(filepath_pca)
-        return {'data': [
-            go.Scattergl(x=tsne[0],
+    filepath = './data/Airway/none/tsne.txt'
+    filepath_pca = "./data/Airway/pca/tsne.txt"
+    if dim_method == 0:
+        tsne = load(filepath)
+    else:
+        tsne = load(filepath_pca)
+    rx = [min(tsne[0]) - 10, max(tsne[0]) + 10]
+    ry = [min(tsne[1]) - 10, max(tsne[1]) + 10]
+    return {'data': [
+        go.Scattergl(
+            x=tsne[0],
             y=tsne[1],
             mode="markers",
             marker=dict(
@@ -351,14 +347,14 @@ def update_graph1(value, dim_method, gene):
                 "l": 100
             },
             xaxis={
-                "range": [-100, 100],
+                "range": rx,
                 "zeroline": False
             },
             yaxis={
                 "mirror": False,
-                "range": [-100, 100],
+                "range": ry,
                 "zeroline": False,
-            })}
+        })}
 
 if __name__ == "__main__":
     app.run_server()

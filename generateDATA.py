@@ -8,7 +8,12 @@ import os
 import time
 from data_helper import scanpy, loadTSV
 
+def createDir(target_dir):
+    if not os.path.exists(target_dir):
+        os.makedirs(target_dir)
+
 def saveTsne(filename, target_dir):
+    createDir(target_dir)
     (x, y) = plot.getTsne(filename)
     l = len(x)
     with open(target_dir + "tsne.txt", "w+") as o:
@@ -17,18 +22,21 @@ def saveTsne(filename, target_dir):
             o.write(str(x[i]) + " " + str(y[i]) + "\n")
 
 def saveKmeans(filename, target_dir, k):
+    createDir(target_dir)
     _, k_mask = cluster.kmeans(filename, clusters=k)
     with open(target_dir + "color_mask_" + str(k) + ".txt", "w+") as o:
         for k_ in k_mask:
             o.write(str(k_) + "\n")
 
 def saveGeneList(filename, target_dir):
+    createDir(target_dir)
     sc = scanpy(filename, mingenes=200, mincells=3)
     with open(target_dir + "genelist.txt", "w+") as out:
         for gene in sc.getFilteredGeneList():
             out.write(gene + "\n")
 
 def saveGeneTable(filename, target_dir, k):
+    createDir(target_dir)
     _, k_mask = cluster.kmeans(filename, clusters=k)
     data = loadTSV(filename)
     indexes = []
@@ -42,12 +50,14 @@ def saveGeneTable(filename, target_dir, k):
     np.savetxt(target_dir + "geneTable_" + str(k) + ".txt", result.transpose(), delimiter="\t")
 
 def savePCA(file, target_dir):
+    createDir(target_dir)
     data = loadTSV(file)
     pca = PCA(n_components=10).fit_transform(data)
     print(type(pca))
     np.savetxt(target_dir + "pca.txt", pca, delimiter="\t")
 
 def savePipeline(filtered_filename_after_reduction, filtered_filename, unfiltered_filename, target_dir):
+    createDir(target_dir)
     threads = []
     start = time.time()
     # save kmeans color mask
@@ -79,8 +89,9 @@ def savePipeline(filtered_filename_after_reduction, filtered_filename, unfiltere
 
 if __name__ == "__main__":
     print(os.getcwd())
-    #savePCA("./data/labelled_data/filtered.txt", "./Website/data/PBMC/pca/")
-    savePipeline("./Website/data/PBMC/pca/pca.txt", "./Website/data/PBMC/pca/filtered.txt",
-                 "./data/data_indexed_with_label_transposed.csv", "./Website/data/PBMC/pca/")
-    #data = loadTSV("./Website/data/PBMC/pca/pca.txt")
+    savePCA("./Website/data/Airway/filtered.txt", "./Website/data/Airway/pca/")
+    savePipeline("./Website/data/Airway/pca/pca.txt", "./Website/data/Airway/filtered.txt",
+                 "./data/Airway.tsv", "./Website/data/Airway/pca/")
+    #data = loadTSV("./Website/data/Airway/filtered.txt")
+    #print(data.shape)
     #print(np.all(np.isfinite(np.log1p(data))))
