@@ -38,7 +38,7 @@ class data(object):
 
 class scanpy(object):
     def __init__(self, filename, mingenes, mincells):
-        self.adata = sc.read_text(filename).transpose()
+        self.adata = sc.read_csv(filename)
         print(self.adata.shape)
 
         # filter out insignificant cells
