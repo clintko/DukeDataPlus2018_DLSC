@@ -70,5 +70,5 @@ def loadCSV(filename):
     return pd.read_csv(filename).values
 
 if __name__ == "__main__":
-    data = scanpy("./data/Airway.tsv", mincells=3, mingenes=200)
-    data.getScanpy("./data/filtered_Airway.txt")
+    data = scanpy("./data/Gland.tsv", mincells=3, mingenes=200)
+    data.getScanpy("./data/filtered_Gland.txt")

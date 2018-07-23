@@ -86,13 +86,9 @@ def train(filepath, model_path, learning_rate, batch_size, epoch):
 
         # test
         test_matrix = getTestData(myMatrix)
-        it_test = test_matrix.shape[0]//batch_size
-        l_test = 0
-        for _ in range(0, it_test):
-            batch_test = test_matrix[_ * batch_size:(_ + 1) * batch_size]
-            l_test += sess.run(loss, feed_dict={x: batch_test})
-        print("After training, the test loss is {}\n".format(l_test/it_test))
-        console.write("After training, the test loss is {}\n".format(l_test/it_test))
+        l_test = sess.run(loss, feed_dict={x: test_matrix})
+        print("After training, the test loss is {}\n".format(l_test))
+        console.write("After training, the test loss is {}\n".format(l_test))
         console.write("The model is saved in path: %s\n" % save_path)
 
     # end time
@@ -181,5 +177,5 @@ def getLatentSpace(filepath, target_path, model_dir):
         np.savetxt(target_path + "latentSpace.txt", latentSpace.eval(), delimiter="\t")
 
 if __name__ == "__main__":
-    #train("./data/labelled_data/filtered.txt", "./model/labelled_data/", learning_rate=0.1, batch_size=100, epoch=1000)
-    getLatentSpace('./data/labelled_data/filtered.txt', "./data/labelled_data/", './model/labelled_data/')
+    #train("./Website/data/Gland/filtered.txt", "./model/labelled_data/", learning_rate=0.01, batch_size=100, epoch=1000)
+    getLatentSpace('./Website/data/Gland/filtered.txt', "./Website/data/Gland/auto/", './model/labelled_data/')

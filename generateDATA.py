@@ -89,9 +89,9 @@ def savePipeline(filtered_filename_after_reduction, filtered_filename, unfiltere
 
 if __name__ == "__main__":
     print(os.getcwd())
-    savePCA("./Website/data/Airway/filtered.txt", "./Website/data/Airway/pca/")
-    savePipeline("./Website/data/Airway/pca/pca.txt", "./Website/data/Airway/filtered.txt",
-                 "./data/Airway.tsv", "./Website/data/Airway/pca/")
+    #savePCA("./Website/data/Gland/filtered.txt", "./Website/data/Gland/pca/")
+    savePipeline("./Website/data//auto/latentSpace.txt", "./Website/data/Gland/filtered.txt",
+                 "./data/Gland.tsv", "./Website/data/Gland/auto/")
     #data = loadTSV("./Website/data/Airway/filtered.txt")
     #print(data.shape)
     #print(np.all(np.isfinite(np.log1p(data))))

@@ -1,4 +1,5 @@
 import dash
+import dash_table_experiments as dt
 import dash_core_components as dcc
 import dash_html_components as html
 import plotly.graph_objs as go
@@ -84,9 +85,11 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                 html.H3("Choose dataset", style={"text-align": "center"}),
                 dcc.Dropdown(
                     options=[
-                        {"label": "PBMC", "value": 1}
+                        {"label": "PBMC", "value": "PBMC"},
+                        {"label": "Airway", "value": "Airway"},
+                        {"label": "Gland", "value": "Gland"}
                     ],
-                    value=1,
+                    value="Airway",
                     id="dataset-dropdown"
                 )
             ], style={"width": "20%", "display": "inline-block"}
@@ -97,11 +100,11 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                 html.H3("Choose dimension reduction method", style={"text-align": "center"}),
                 dcc.Dropdown(
                     options=[
-                        {"label": "none", "value": 0},
-                        {"label": "PCA", "value": 1},
-                        {"label": "autoencoder", "value": 2},
+                        {"label": "none", "value": "none"},
+                        {"label": "PCA", "value": "pca"},
+                        {"label": "autoencoder", "value": "auto"},
                     ],
-                    value=0,
+                    value="none",
                     id="dimension-dropdown"
                 )
             ], style={"width": "20%", "display": "inline-block"}
@@ -176,88 +179,59 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
 
 
     # table
+
     html.Div(children=[
-        # table
-        html.Div(style={"border": "solid gray", "width": "100%", "text-align": "center", "display": "inline-block"},
-                 id="table", children=[])
-        ]
+            dt.DataTable(
+                rows=[{}],
+                sortable=True,
+                id="table"
+            )
+        ], style={"border": "solid gray", "width": "100%", "text-align": "center", "display": "inline-block"},
     )
+
 ])
 
 @app.callback(
-    dash.dependencies.Output("table", "children"),
+    dash.dependencies.Output("table", "rows"),
     [dash.dependencies.Input("kmean-dropdown", "value"),
-     dash.dependencies.Input("dimension-dropdown", "value")])
-def update_table(value, dim_method):
+    dash.dependencies.Input("dimension-dropdown", "value"),
+    dash.dependencies.Input("dataset-dropdown", "value")])
+def update_table(value, dim_method, dataset):
+    # load dataset
+    filepath = "./data/" + dataset + "/" + dim_method + "/"
+
     # load data
-    if dim_method == 0:
-        gene_tables = []
-        for k_ in range(1, 9):
-            gene_tables.append(loadTable("./data/Airway/none/geneTable_" + str(k_) + ".txt"))
-        gene_list = loadList("./data/Airway/none/genelist.txt")
-    else:
-        gene_tables = []
-        for k_ in range(1, 9):
-            gene_tables.append(loadTable("./data/Airway/pca/geneTable_" + str(k_) + ".txt"))
-        gene_list = loadList("./data/Airway/pca/genelist.txt")
+    gene_tables = []
+    for k_ in range(1, 9):
+        gene_tables.append(loadTable(filepath + "geneTable_" + str(k_) + ".txt"))
+    gene_list = loadList(filepath + "genelist.txt")
 
     # generate table
-    body = []
-    for i in range(100):
-        row = [html.Td(gene_list[i], style={"background-color": "#CEF0EF"})]
-        for j in range(value):
-            row.append(html.Td(round(gene_tables[value - 1][i][j], 3), style={"background-color": "#EEFCFB"}))
-        body.append(html.Tr(row))
-
-    header = [html.Th("Genes")]
+    rows = []
+    cols = ["Genes"]
     for k in range(1, value + 1):
-        header.append(html.Th("Cluster" + str(k), style={"background-color": "#CEF0EF"}))
-    return html.Table(
-        # header
-        header +
-        # body
-        body,
-        style={"width": "100%"}
-    )
-
-#@app.callback(
-#    dash.dependencies.Output("heatmap", "figure"),
-#    [dash.dependencies.Input("kmean-dropdown", "value")])
-#def update_heatmap(value):
-##    return {
-  #      "data": [go.Heatmap(
-   #         x=list(range(1, value + 1)),
-    #        y=gene_list[:100],
-     #       z=gene_tables[value - 1][:100],
-      #      colorscale='Viridis'
-       # )],
-
-       # "layout": go.Layout(
-       #     title="Gene Heatmap",
-       #     xaxis=dict(ticks=''),
-       ##     yaxis=dict(ticks='')
-        #)
-   # }
-
+        cols.append("Cluster" + str(k))
+    for i in range(len(gene_list)):
+        row = {}
+        row["Genes"] = gene_list[i]
+        for j in range(1, len(cols)):
+            row[cols[j]] = round(gene_tables[value - 1][i][j - 1], 3)
+        rows.append(row)
+    return rows
 
 
 @app.callback(
     dash.dependencies.Output('graph-2', 'figure'),
     [dash.dependencies.Input('kmean-dropdown', 'value'),
-     dash.dependencies.Input("dimension-dropdown", "value")])
-def update_graph_2(value, dim_method):
-    filepath = './data/Airway/none/tsne.txt'
-    filepath_pca = "./data/Airway/pca/tsne.txt"
-    if dim_method == 0:
-        tsne = load(filepath)
-        color_mask = []
-        for k_ in range(1, 9):
-            color_mask.append(loadColorMask("./data/Airway/none/color_mask_" + str(k_) + ".txt"))
-    else:
-        tsne = load(filepath_pca)
-        color_mask = []
-        for k_ in range(1, 9):
-            color_mask.append(loadColorMask("./data/Airway/pca/color_mask_" + str(k_) + ".txt"))
+     dash.dependencies.Input("dimension-dropdown", "value"),
+     dash.dependencies.Input("dataset-dropdown", "value")])
+def update_graph_2(value, dim_method, dataset):
+    filepath = './data/' + dataset + "/" + dim_method + "/" + 'tsne.txt'
+    tsne = load(filepath)
+    color_mask = []
+    for k_ in range(1, 9):
+        color_mask.append(loadColorMask("./data/" + dataset + "/" + dim_method + "/" + "color_mask_" + str(k_) + ".txt")
+                          )
     text = []
     for i in color_mask[value - 1]:
         text.append("Cluster " + str(i))
@@ -306,17 +280,29 @@ def update_graph_2(value, dim_method):
 
 
 @app.callback(
+    dash.dependencies.Output("gene-dropdown", "options"),
+    [dash.dependencies.Input("dataset-dropdown", "value")])
+def update_gene_dropdown(dataset):
+    filename = "./data/" + dataset
+    genelist = loadList(filename+"/genelist.txt")
+    print(len(genelist))
+    dropdown_label = []
+    for i in range(len(genelist)):
+        dropdown_label.append({"label": genelist[i], "value": i})
+    return dropdown_label
+
+
+@app.callback(
     dash.dependencies.Output("graph-1", "figure"),
     [dash.dependencies.Input("visualization-dropdown", "value"),
      dash.dependencies.Input("dimension-dropdown", "value"),
-     dash.dependencies.Input("gene-dropdown", "value")])
-def update_graph1(value, dim_method, gene):
-    filepath = './data/Airway/none/tsne.txt'
-    filepath_pca = "./data/Airway/pca/tsne.txt"
-    if dim_method == 0:
-        tsne = load(filepath)
-    else:
-        tsne = load(filepath_pca)
+     dash.dependencies.Input("gene-dropdown", "value"),
+     dash.dependencies.Input("dataset-dropdown", "value")])
+def update_graph1(value, dim_method, gene, dataset):
+    # load
+    filepath = './data/' + dataset + "/" + dim_method + '/tsne.txt'
+    tsne = load(filepath)
+    # generate range
     rx = [min(tsne[0]) - 10, max(tsne[0]) + 10]
     ry = [min(tsne[1]) - 10, max(tsne[1]) + 10]
     return {'data': [
@@ -327,7 +313,7 @@ def update_graph1(value, dim_method, gene):
             marker=dict(
                 # set color equal to a variable
                 color=color_mask_genes[gene],
-                colorscale='Viridis',
+                colorscale='Jet',
                 showscale=True
                 )
             )], 'layout': go.Layout(
