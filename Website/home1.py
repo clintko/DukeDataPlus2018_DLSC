@@ -184,8 +184,8 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
             dt.DataTable(
                 rows=[{}],
                 sortable=True,
-                id="table"
-            )
+                id="table",
+             )
         ], style={"border": "solid gray", "width": "100%", "text-align": "center", "display": "inline-block"},
     )
 
