@@ -1,64 +1,73 @@
 import dash
 import dash_html_components as html
-import dash_core_components as dcc
-from dash.dependencies import Input, Output
-import pandas as pd
-import plotly.graph_objs as go
 
 team = dash.Dash()
 
 
 # Composing the website
-team.layout = html.Div(style={"height": "200vh", "font-family": "Georgia", "border": "black"}, children=[
+team.layout = html.Div(style={"height": "200vh", "font-family": "Georgia", "border": "black", "border": "solid"}, children=[
 
 
     # introduction of our team
-    html.H3('Our Team:', style={"align": "center", 'margin-left': '8.66666666667%'}),
+    html.H2('Our Team:', style={"text-align": "center", "border": "solid"}),
     # Bob Ding
     html.Div([
-        html.Div([
-            html.Div([
-                html.H4(style={"margin-left": "8.66666666667%"}, children='Bob Ding'),
-                html.P(style={"margin-left": "8.66666666667%"}, children="""My name is Bob Ding. I\'m currently a 
-                Duke 2021 Undergraduate majoring in Mathematics and Statistics.""")
-            ], className="four columns"),
-
-            html.Div([
+        html.Div(children=[
+            html.Div(children=[
                 html.Img(src='https://bigdata.duke.edu/sites/bigdata.duke.edu/files/styles/'
                              'masonry_item_225px/public/Ziyang-Bob-Ding.jpg?itok=XlqD2o5g',
-                        style={"margin-top": "2vh", "margin-left": "3vh"}),
-            ], className="four columns"),
-        ], className="row"),
+                         style={"margin-top": "1vh", "margin-right": "8.66666666667%"}),
+            ], className="six columns"),
+
+            html.Div(children=[
+                html.H4(style={"margin-left": "8.66666666667%"}, children='Bob Ding'),
+                html.P(style={"margin-left": "8.66666666667%", "color": "red"}, children="""Duke 2021 Undergraduate, 
+                Mathematics and Statistic Major"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""One of the developers of the website,
+                contributed to 'None' and PCA dimension reduction methods pipeline,
+                and SCVIS visualization machine learning pipeline construction"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""Email: ziyang.ding@duke.edu"""),
+            ], className="six columns")
+        ], className="row")
         ]),
 
-    # Daniel Tao
+    # Daniel
     html.Div([
         html.Div([
-            html.Div([
-                html.H4(children='Daniel Tao'),
-                html.P(children="""My name is Daniel Tao. I\'m currently a
-                Duke 2021 undergraduate majoring in ECE and Computer Science.""")
-            ], className="four columns"),
             html.Div([
                 html.Img(src='https://bigdata.duke.edu/sites/bigdata.duke.edu/files/styles/'
                              'masonry_item_225px/public/Daniel%20Tao.jpg?itok=RQ6bv037',
-                         style={"margin-top": "2vh", "margin-left": "3vh"}),
-            ], className="four columns"),
-        ], className="row", style={"border-style": "solid"}),
-        ]),
+                         style={"margin-top": "2vh", "margin-right": "8.66666666667%"}),
+            ], className="six columns"),
+            html.Div([
+                html.H4(style={"margin-left": "8.66666666667%"}, children='Kuei Yueh Ko'),
+                html.P(style={"margin-left": "8.66666666667%", "color": "red"}, children="""Duke 2021 Undergraduate, 
+                            ECE and Computer Science Major"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""One of the developers of the website,
+                            contributed to Autoencoder and PCA dimension reduction methods pipeline,
+                            and tSNE visualization machine learning pipeline construction"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""Email: chaofan.tao@duke.edu"""),
+            ], className="six columns")
+        ], className="row"),
+    ]),
 
     # Kuei
     html.Div([
         html.Div([
             html.Div([
-                html.H4(style={"margin-left": "8.66666666667%"}, children='Kuei Yueh Ko'),
-                html.P(style={"margin-left": "8.66666666667%"}, children="""My name is Kuei blablabla""")
-            ], className="four columns"),
-            html.Div([
                 html.Img(src='https://bigdata.duke.edu/sites/bigdata.duke.edu/files/styles/'
                              'masonry_item_225px/public/Kuei%20Yueh%20Ko.jpg?itok=o6anbMzO',
-                         style={"margin-top": "2vh", "margin-left": "3vh"}),
-            ], className="four columns"),
+                         style={"margin-top": "2vh", "margin-right": "8.66666666667%"}),
+            ], className="six columns"),
+            html.Div([
+                html.H4(style={"margin-left": "8.66666666667%"}, children='Kuei Yueh Ko'),
+                html.P(style={"margin-left": "8.66666666667%", "color": "red"}, children="""Duke master program
+                Biostatistics department"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""Project manager of 2018 Data+ project 8:
+                Deep Learning for Single Cell Analysis. Contributed to coordinating and managing project team in
+                academic research, communicating with Tata's Lab, and connecting project team with professors"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""Email: 填写填写填写@duke.edu"""),
+            ], className="six columns")
         ], className="row"),
     ]),
 
@@ -66,14 +75,25 @@ team.layout = html.Div(style={"height": "200vh", "font-family": "Georgia", "bord
     html.Div([
         html.Div([
             html.Div([
-                html.H4(style={"margin-left": "8.66666666667%"}, children='Doc. Cliburn Chan'),
-                html.P(style={"margin-left": "8.66666666667%"}, children="""I am Doc Cilburn Chan blablabla""")
-            ], className="four columns"),
-            html.Div([
                 html.Img(src='https://genome.duke.edu/sites/genome.duke.edu/files/styles/'
                              'gcb_350x350/public/Chan%2C%20Cliburn.jpg?itok=QUoyoCq5',
-                         style={"margin-top": "2vh", "margin-left": "3vh"}),
-            ], className="four columns"),
+                         style={"margin-top": "2vh", "margin-right": "8.66666666667%"}),
+            ], className="six columns"),
+            html.Div([
+                html.H4(style={"margin-left": "8.66666666667%"}, children='Cliburn Chan, PHD'),
+                html.P(style={"margin-left": "8.66666666667%", "color": "red"}, children="""Associate Professor, Duke 
+                Biostatistic department"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""Director professor 2018 Data+ project 8:
+                            Deep Learning for Single Cell Analysis.Computational immunology (stochastic and spatial 
+                            models and simulations, T cell signaling, immune regulation) """),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""Statistical methodology for immunological 
+                            laboratory techniques (flow cytometry, CFSE analysis, receptor-ligand binding and 
+                            signaling kinetics)"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""Informatics of the immune system (reference 
+                            and application ontologies, meta-programming, text mining and machine learning)"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""Phone: (919) 668-2459"""),
+                html.P(style={"margin-left": "8.66666666667%"}, children="""Email: 填写填写填写@duke.edu"""),
+            ], className="six columns"),
         ], className="row"),
     ])
 ])

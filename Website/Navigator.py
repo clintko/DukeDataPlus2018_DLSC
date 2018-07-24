@@ -1,17 +1,12 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-import plotly.graph_objs as go
-from seaborn import heatmap
-import cluster
-import numpy as np
 from home1_backup import home1, load, loadColorMask, loadTable, loadList, update_table, update_graph_2, update_graph1
 from Team import team
+from About import about
 
 
-
-
-pages = {"/home": home1, "/team": team}
+pages = {"/home": home1, "/team": team, "/about": about}
 
 
 app = dash.Dash()
@@ -25,15 +20,18 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
         html.Ul(style={"float": "right", "list-style": "none", "margin-right": "5vh"},
                 children=[
             dcc.Location(id='url', refresh=False),
-            dcc.Link(children=["About"], href="about", style={"font-size": "15px", "display": "inline-block", "padding": "2vh"}),
+            dcc.Link(children=["About"], href="about", style={"font-size": "15px",
+                                                              "display": "inline-block", "padding": "2vh"}),
             html.Br(),
-            dcc.Link(children=["Home"], href="home", style={"font-size": "15px", "display": "inline-block", "padding": "2vh"}),
+            dcc.Link(children=["Home"], href="home", style={"font-size": "15px",
+                                                            "display": "inline-block", "padding": "2vh"}),
             html.Br(),
-            dcc.Link(children=["Team"], href="team", style={"font-size": "15px", "display": "inline-block", "padding": "2vh"})
+            dcc.Link(children=["Team"], href="team", style={"font-size": "15px",
+                                                            "display": "inline-block", "padding": "2vh"})
                 ])
     ]),
 
-    html.Div(id="page_content", style={"border-style": "solid"})
+    html.Div(id="page_content")
 ])
 
 
