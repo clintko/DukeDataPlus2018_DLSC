@@ -1,13 +1,21 @@
 import dash
+import os
+import base64
+import io
 import dash_table_experiments as dt
 import dash_core_components as dcc
 import dash_html_components as html
+import plotly.plotly as py
 import plotly.graph_objs as go
 from seaborn import heatmap
 import cluster
 import numpy as np
 from data_helper import loadTSV
+import scipy.stats as stats
+from generateDATA import realOneClick
 
+
+UPLOAD_DIR = "./data/upload/"
 # load method from txt
 def load(file):
     with open(file, "r") as o:
@@ -40,6 +48,7 @@ def loadTable(file):
             result[i, j] = float(lines[i].split()[j])
     return result
 
+
 def loadList(file):
     with open(file, "r") as o:
         data = o.read()
@@ -48,6 +57,13 @@ def loadList(file):
     for n_ in range(len(lines)):
         result.append(lines[n_])
     return result
+
+
+def save_file(name, content):
+    """Decode and store a file uploaded with Plotly Dash."""
+    data = content.encode('utf8').split(b';base64,')[1]
+    with open(os.path.join(UPLOAD_DIR, name), 'wb') as fp:
+        fp.write(base64.decodebytes(data))
 
 
 # load genelist
@@ -62,7 +78,7 @@ for i in range(len(genelist)):
 # draw website
 app = dash.Dash()
 
-app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, children=[
+app.layout = html.Div(style={"height": "150vh", "fontFamily": "Georgia"}, children=[
     # head
     html.Div(style={'background-color': "#CEF0EF", "height": "10vh", "width": "100%"}, children=[
         html.Img(src='https://upload.wikimedia.org/wikipedia/commons/e/e1/Duke_Athletics_logo.svg', height="50vh",
@@ -87,7 +103,8 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
                     options=[
                         {"label": "PBMC", "value": "PBMC"},
                         {"label": "Airway", "value": "Airway"},
-                        {"label": "Gland", "value": "Gland"}
+                        {"label": "Gland", "value": "Gland"},
+                        {"label": "Your Upload", "value": "upload"}
                     ],
                     value="Airway",
                     id="dataset-dropdown"
@@ -157,21 +174,30 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
 
 
         # Graphs
-        dcc.Graph(
-            id="graph-1",
-            figure={},
-            config={
-                'displayModeBar': False
-            },
-            style={'display': "inline-block", "width": "50%"}
-        ),
+        html.Div(children=[
+            # empty placeholder
+            html.Div(style={"height": "5vh"}),
 
-        dcc.Graph(
-            id="graph-2",
-            config={
-                'displayModeBar': False
-            }, figure={}, style={'display': "inline-block", "width": "30%"}
-        )
+            dcc.Graph(
+                id="graph-1",
+                figure={},
+                config={
+                    'displayModeBar': True
+                })
+        ], style={'display': "inline-block", "width": "50%"}),
+
+        html.Div(children=[
+            # empty placeholder
+            html.Div(style={"height": "5vh"}),
+
+            dcc.Graph(
+                id="graph-2",
+                config={
+                    'displayModeBar': True
+                },
+                figure={}
+            )
+        ], style={'display': "inline-block", "width": "30%"})
     ]),
 
     # empty placeholder
@@ -179,17 +205,76 @@ app.layout = html.Div(style={"height": "200vh", "fontFamily": "Georgia"}, childr
 
 
     # table
-
     html.Div(children=[
-            dt.DataTable(
-                rows=[{}],
-                sortable=True,
-                id="table",
-             )
+        dt.DataTable(
+            rows=[{}],
+            sortable=True,
+            id="table",
+         )
         ], style={"border": "solid gray", "width": "100%", "text-align": "center", "display": "inline-block"},
-    )
+    ),
 
+    # empty placeholder
+    html.Div(style={"height": "5vh"}),
+
+    # upload button
+    html.Div(children=[
+        html.H3("Upload your own dataset. Please wait for about 30 minutes for program to finish computing.",
+                style={"text-align": "center"}),
+        html.H3("Please upload a csv file", style={"text-align": "center"}),
+        html.H3("The rows should be observations/cells, and the columns be genes.", style={"text-align": "center"}),
+        dcc.Upload(
+            id='upload-data',
+            children=html.Div([
+                'Drag and Drop or ',
+                html.A('Select Files', style={"background-color": "#CEF0EF"})
+            ]),
+            style={
+                'width': '80%',
+                'height': '60px',
+                'lineHeight': '60px',
+                'borderWidth': '1px',
+                'borderStyle': 'dashed',
+                'borderRadius': '5px',
+                'textAlign': 'center',
+                'margin': 'auto'
+            }),
+        html.H3("Uploaded: "),
+        html.H3(id="processing"),
+        html.Ul(id="uploaded")
+    ], style={"border": "solid gray", "align": "center"})
 ])
+
+
+@app.callback(
+    dash.dependencies.Output("processing", "children"),
+    [dash.dependencies.Input("upload-data", "filename"),
+     dash.dependencies.Input("uploaded", "children")])
+def update_process(filename, ch):
+    if ch == None:
+        return "Processing " + filename + ". Please be patient"
+    else:
+        return "Processing done!"
+
+
+
+@app.callback(
+    dash.dependencies.Output("uploaded", "children"),
+    [dash.dependencies.Input("upload-data", "filename"),
+     dash.dependencies.Input("upload-data", "contents")])
+def update_output(filename, contents):
+    """Save uploaded files and regenerate the file list."""
+    if filename == None:
+        files = "No files yet!"
+    else:
+        print(os.getcwd())
+        save_file(filename, contents)
+        csv_name = "./" + filename
+        realOneClick(csv_name)
+        files = filename
+    return [html.Li(files)]
+
+
 
 @app.callback(
     dash.dependencies.Output("table", "rows"),
@@ -340,7 +425,7 @@ def update_graph1(value, dim_method, gene, dataset):
                 "mirror": False,
                 "range": ry,
                 "zeroline": False,
-        })}
+            })}
 
 if __name__ == "__main__":
     app.run_server()

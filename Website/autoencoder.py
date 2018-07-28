@@ -7,7 +7,7 @@ import os
 import math
 
 def getData(filepath):
-    data = data_helper.loadTSV(filepath)
+    data = data_helper.loadCSV(filepath)
     return data
 
 def train(filepath, model_path, learning_rate, batch_size, epoch):
