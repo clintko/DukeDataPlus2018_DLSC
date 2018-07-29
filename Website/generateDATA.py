@@ -22,12 +22,18 @@ def saveTsne(filename, target_dir):
         for i in range(l):
             o.write(str(x[i]) + " " + str(y[i]) + "\n")
 
-def saveKmeans(filename, target_dir, k):
+def saveKmeans(filename, target_dir, k, scvis=False):
     createDir(target_dir)
-    _, k_mask = cluster.kmeans(filename, clusters=k)
-    with open(target_dir + "color_mask_" + str(k) + ".txt", "w+") as o:
-        for k_ in k_mask:
-            o.write(str(k_) + "\n")
+    _, k_mask = cluster.kmeans(filename, clusters=k, scvis=scvis)
+    if not scvis:
+        with open(target_dir + "color_mask_" + str(k) + ".txt", "w+") as o:
+            for k_ in k_mask:
+                o.write(str(k_) + "\n")
+    else:
+        with open(target_dir + "color_mask_" + str(k) + "_scvis.txt", "w+") as o:
+            for k_ in k_mask:
+                o.write(str(k_) + "\n")
+
 
 def saveGeneList(filename, target_dir):
     createDir(target_dir)
@@ -36,9 +42,9 @@ def saveGeneList(filename, target_dir):
         for gene in sc.getFilteredGeneList():
             out.write(gene + "\n")
 
-def saveGeneTable(filename, target_dir, k):
+def saveGeneTable(filename, file_after_reduction, target_dir, k, scvis=False):
     createDir(target_dir)
-    _, k_mask = cluster.kmeans(filename, clusters=k)
+    _, k_mask = cluster.kmeans(file_after_reduction, clusters=k, scvis=scvis)
     data = loadTSV(filename)
     indexes = []
     for _ in range(k):
@@ -48,7 +54,11 @@ def saveGeneTable(filename, target_dir, k):
     result = np.zeros(shape=(k, len(data[0])))
     for _ in range(k):
         result[_] = np.mean(data[indexes[_]], axis=0)
-    np.savetxt(target_dir + "geneTable_" + str(k) + ".txt", result.transpose(), delimiter="\t")
+    if not scvis:
+        np.savetxt(target_dir + "geneTable_" + str(k) + ".txt", result.transpose(), delimiter="\t")
+    else:
+        np.savetxt(target_dir + "geneTable_" + str(k) + "_scvis.txt", result.transpose(), delimiter="\t")
+
 
 def savePCA(file, target_dir):
     createDir(target_dir)
@@ -72,11 +82,14 @@ def savePipeline(filtered_filename_after_reduction, filtered_filename, unfiltere
     threads.append(thread)
     thread.start()
     print("thread {} started".format(len(threads)))
+    # save genetable
     for k in range(1, 9):
-        thread = threading.Thread(target=saveGeneTable, args=(filtered_filename, target_dir, k))
+        thread = threading.Thread(target=saveGeneTable, args=(filtered_filename, filtered_filename_after_reduction,
+                                                              target_dir, k))
         thread.start()
         threads.append(thread)
         print("thread {} started".format(len(threads)))
+    # save tsne
     thread = threading.Thread(target=saveTsne, args=(filtered_filename_after_reduction, target_dir))
     thread.start()
     threads.append(thread)
@@ -85,6 +98,31 @@ def savePipeline(filtered_filename_after_reduction, filtered_filename, unfiltere
         th.join()
     end = time.time()
     print("It takes {} minutes to finish the pipeline".format((end - start) / 60))
+
+
+def scvisPipeline(filtered_filename_after_reduction, filtered_filename, scvis_filename, target_dir):
+    createDir(target_dir)
+    threads = []
+    start = time.time()
+    # save kmeans color mask
+    for k in range(1, 9):
+        thread = threading.Thread(target=saveKmeans, args=(scvis_filename, target_dir, k, True))
+        thread.start()
+        threads.append(thread)
+        print("thread {} started".format(len(threads)))
+    # save gene table
+    for k in range(1, 9):
+        thread = threading.Thread(target=saveGeneTable, args=(filtered_filename, filtered_filename_after_reduction,
+                                                              target_dir, k, True))
+        thread.start()
+        threads.append(thread)
+        print("thread {} started".format(len(threads)))
+    # wait for all threads to end
+    for th in threads:
+        th.join()
+    end = time.time()
+    print("It takes {} minutes to finish the pipeline".format((end - start) / 60))
+
 
 def realOneClick(file):
     os.chdir("./data/upload/")
@@ -113,9 +151,9 @@ def realOneClick(file):
 
 if __name__ == "__main__":
     #savePCA("./Website/data/Gland/filtered.txt", "./Website/data/Gland/pca/")
-    #savePipeline("./Website/data/PBMC/auto/latentSpace.txt", "./Website/data/PBMC/filtered.txt",
-     #            "./data/data_indexed_with_label_transposed.csv", "./Website/data/PBMC/auto/")
+    scvisPipeline("./data/Gland/pca/pca.txt", "./data/Gland/filtered.txt",
+                 "./data/Gland/pca/scvis.tsv", "./data/Gland/pca/")
     #data = loadTSV("./Website/data/Airway/filtered.txt")
     #print(data.shape)
     #print(np.all(np.isfinite(np.log1p(data))))
-    realOneClick("../../../data/fakedata.csv")
+    #realOneClick("../../../data/fakedata.csv")

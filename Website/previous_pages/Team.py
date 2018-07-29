@@ -5,7 +5,8 @@ team = dash.Dash()
 
 
 # Composing the website
-team.layout = html.Div(style={"height": "200vh", "font-family": "Georgia", "border": "black", "border": "solid"}, children=[
+team.layout = html.Div(style={"height": "200vh", "font-family": "Georgia", "border": "black", "border": "solid"},
+                       children=[
 
 
     # introduction of our team
@@ -99,9 +100,10 @@ team.layout = html.Div(style={"height": "200vh", "font-family": "Georgia", "bord
 ])
 
 # css style repository
-team.css.append_css({
+about.css.append_css({
     'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'
 })
+
 
 
 if __name__ == "__main__":

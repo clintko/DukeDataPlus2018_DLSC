@@ -7,9 +7,12 @@ from data_helper import loadTSV, loadCSV
 from sklearn.decomposition import IncrementalPCA
 
 
-def kmeans(filename, target_name="", clusters=8):
+def kmeans(filename, target_name="", clusters=8, scvis=False):
     # use kmeans on tsne
-    matrix = tsne(filename)
+    if scvis:
+        matrix = loadTSV(filename)
+    else:
+        matrix = tsne(filename)
 
     # get kmeans labels
     k = KMeans(n_clusters=clusters).fit_predict(matrix)
